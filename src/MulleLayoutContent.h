@@ -4,7 +4,7 @@
 #ifndef mulle_layout_content_h__
 #define mulle_layout_content_h__
 
-#include "CGGeometry.h"
+#include "include.h"
 
 //
 // Layout content is concerned about placing a rectangle of some size

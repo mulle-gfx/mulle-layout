@@ -4,7 +4,8 @@
 #ifndef mulle_layout_h__
 #define mulle_layout_h__
 
-#include "CGGeometry.h"
+#include "include.h"
+
 #include "MulleEdgeInsets.h"
 
 //

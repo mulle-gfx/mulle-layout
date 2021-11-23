@@ -16,14 +16,26 @@
 
 // You can tweak the following #include with these commands.
 // (Use 55F69EC9-59CA-4CC8-B3DB-E28DD6287CA3 instead of m if there are duplicate entries)
-//    remove:             `mulle-sourcetree mark m no-header`
+//    remove:             `mulle-sde dependency mark m no-header`
 //    rename:             `mulle-sde dependency|library set m include whatever.h`
-//    reorder:            `mulle-sourcetree move m <up|down>`
-//    toggle #include:    `mulle-sourcetree mark m [no-]import`
-//    toggle public:      `mulle-sourcetree mark m [no-]public`
-//    toggle optional:    `mulle-sourcetree mark m [no-]require`
-//    remove for platform:`mulle-sourcetree mark m no-platform-<uname>`
-//        (use mulle-sourcetree-to-c --unames for known values)
+//    reorder:            `mulle-sde dependency move m <up|down>`
+//    toggle #include:    `mulle-sde dependency mark m [no-]import`
+//    toggle public:      `mulle-sde dependency mark m [no-]public`
+//    toggle optional:    `mulle-sde dependency mark m [no-]require`
+//    remove for platform:`mulle-sde dependency mark m no-platform-<uname>`
+//        (use `mulle-sourcetree-to-c --unames` to list known values)
 #include <math.h>   // m
+
+// You can tweak the following #include with these commands.
+// (Use C0E0C86F-41F1-405A-BDFD-A7A68FDABEA3 instead of mulle-geometry if there are duplicate entries)
+//    remove:             `mulle-sde dependency mark mulle-geometry no-header`
+//    rename:             `mulle-sde dependency|library set mulle-geometry include whatever.h`
+//    reorder:            `mulle-sde dependency move mulle-geometry <up|down>`
+//    toggle #include:    `mulle-sde dependency mark mulle-geometry [no-]import`
+//    toggle public:      `mulle-sde dependency mark mulle-geometry [no-]public`
+//    toggle optional:    `mulle-sde dependency mark mulle-geometry [no-]require`
+//    remove for platform:`mulle-sde dependency mark mulle-geometry no-platform-<uname>`
+//        (use `mulle-sourcetree-to-c --unames` to list known values)
+#include <mulle-geometry/mulle-geometry.h>   // mulle-geometry
 
 #endif

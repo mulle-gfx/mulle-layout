@@ -6,7 +6,6 @@
 
 #include "include.h"
 
-#include "CGGeometry.h"
 #include <string.h>
 
 
