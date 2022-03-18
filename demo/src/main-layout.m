@@ -21,7 +21,7 @@ void   drawContentMode( NVGcontext *vg,
                    rect.size.width,
                    rect.size.height);
       nvgStrokeWidth( vg, 1.0);
-      nvgStrokeColor(vg, CGColorMakeWithUnsignedInteger( 0x8080007F));
+      nvgStrokeColor(vg, CGColorMakeWithHexColor( 0x8080007F));
    }
    nvgStroke( vg);
 
@@ -65,7 +65,7 @@ void   drawRectPlacement( NVGcontext *vg,
                    rect.size.width,
                    rect.size.height);
       nvgStrokeWidth( vg, 1.0);
-      nvgStrokeColor(vg, CGColorMakeWithUnsignedInteger( 0x8080007F));
+      nvgStrokeColor(vg, CGColorMakeWithHexColor( 0x8080007F));
    }
    nvgStroke( vg);
 
@@ -138,7 +138,7 @@ void   drawRectSpacePlacement( NVGcontext *vg,
                    rect.size.width,
                    rect.size.height);
       nvgStrokeWidth( vg, 1.0);
-      nvgStrokeColor(vg, CGColorMakeWithUnsignedInteger( 0x8080007F));
+      nvgStrokeColor(vg, CGColorMakeWithHexColor( 0x8080007F));
    }
    nvgStroke( vg);
 
@@ -202,7 +202,7 @@ static void   drawLayoutInSpace( NVGcontext *vg, CGRect rect)
                    rect.size.width,
                    rect.size.height);
       nvgStrokeWidth( vg, 1.0);
-      nvgStrokeColor(vg, CGColorMakeWithUnsignedInteger( 0x8080007F));
+      nvgStrokeColor(vg, CGColorMakeWithHexColor( 0x8080007F));
    }
    nvgStroke( vg);
 
@@ -325,25 +325,23 @@ void   setupScene( UIWindowPlane *contentPlane)
 
 int   main()
 {
-   UIWindow   *window;
-
+   UIWindow        *window;
+   UIApplication   *app;
    /*
     * window and app
     */
+   app = [UIApplication sharedInstance];
    @autoreleasepool
    {
       window = [UIWindow windowWithFrame:CGRectMake( 0.0, 0.0, 800.0, 600.0)];
 
-      [[UIApplication sharedInstance] addWindow:window];
+      [app addWindow:window];
 
       [window setBackgroundColor:CGColorMakeRGBA( 1.0, 1.0, 1.0, 1.0)];
 
       setupScene( [window contentPlane]);
-
-      [window renderLoop];
-      [[UIApplication sharedInstance] terminate];
    }
-   return( 0);
+   return( [app run]);
 }
 
 

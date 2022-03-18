@@ -24,9 +24,15 @@ The last row, shows the "layout" code, placing rectangles in column first,
 then row fashion.
 
 
+### You are here
+
+![Overview](overview.dot.svg)
+
+
+
 ## Attribution
 
-The library contains a lot of code from :
+The library contains the `CGRectDivide` function:
 
 ```
 Copyright (c) 2006-2007 Christopher J. W. Lloyd

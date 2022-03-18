@@ -39,7 +39,6 @@ typedef enum
    // it's CenterPoint to disinguish from Center, which is used for the
    // Y axis (and Middle for the X axis)
    CGContentModeCenterPoint,
-
 } CGContentMode;
 #define N_CGContentModes 12
 
@@ -47,6 +46,13 @@ typedef enum
 extern char    *CGContentModeNames[ N_CGContentModes];
 char           *CGContentModeUTF8String( CGContentMode mode);
 CGContentMode  CGContentModeParseCString( char *s);
+
+
+static inline int   CGContentModeIsScaling( CGContentMode mode)
+{
+   return( mode >= CGContentModeScaleToFill &&
+           mode <= CGContentModeScaleAspectFill);
+}
 
 
 
@@ -128,5 +134,25 @@ static inline CGRect   CGRectCenterAtPoint( CGRect rect, CGPoint point)
    return( rect);
 }
 
+
+// Find the size of the square that fits into rect.
+//
+//  .-------------.
+//  |    .---.    |
+//  |    |   |    |
+//  |    '---'    |
+//  '-------------'
+//
+static inline CGSize   CGRectGetLargestSquareSize( CGRect rect)
+{
+   CGSize   square;
+
+   if( rect.size.width > rect.size.height)
+      square.width = rect.size.height;
+   else
+      square.width = rect.size.width;
+   square.height   = square.width;
+   return( square);
+}
 
 #endif
