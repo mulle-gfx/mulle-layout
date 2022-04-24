@@ -1,4 +1,4 @@
-#import <MulleUICore/MulleUICore.h>
+#import "import.h"
 
 #import <string.h>
 
