@@ -8,6 +8,9 @@
 
 #include "MulleEdgeInsets.h"
 
+#include "MulleLayoutContent.h"
+
+
 //
 // MulleLayout supports layouting of rectangles in rows and columns.
 // Rectangles are added left to right to a row, until its filled. 
@@ -63,9 +66,9 @@ struct MulleLayout
 // |       bottom    t |
 // +-------------------+
 //
-static inline void  _MulleLayoutInit( struct MulleLayout *p,
-                                      CGRect rect,
-                                      MulleEdgeInsets margins)
+static inline void   _MulleLayoutInit( struct MulleLayout *p,
+                                       CGRect rect,
+                                       MulleEdgeInsets margins)
 {
    p->originalRect    = rect;
    p->originalMargins = margins;
@@ -78,9 +81,9 @@ static inline void  _MulleLayoutInit( struct MulleLayout *p,
 }
 
 
-static inline void  _MulleLayoutInitReverse( struct MulleLayout *p,
-                                             CGRect rect,
-                                             MulleEdgeInsets margins)
+static inline void   _MulleLayoutInitReverse( struct MulleLayout *p,
+                                              CGRect rect,
+                                              MulleEdgeInsets margins)
 {
    // read only (in algorithm)
    margins = MulleEdgeInsetsMake( margins.top, 
@@ -98,18 +101,18 @@ static inline void  _MulleLayoutInitReverse( struct MulleLayout *p,
 }
 
 
-static inline void  MulleLayoutInit( struct MulleLayout *p,
-                                     CGRect rect,
-                                     MulleEdgeInsets margins)
+static inline void   MulleLayoutInit( struct MulleLayout *p,
+                                      CGRect rect,
+                                      MulleEdgeInsets margins)
 {
    if( p)
       _MulleLayoutInit( p, rect, margins);
 }
 
 
-static inline void  MulleLayoutInitReverse( struct MulleLayout *p,
-                                            CGRect rect,
-                                            MulleEdgeInsets margins)
+static inline void   MulleLayoutInitReverse( struct MulleLayout *p,
+                                             CGRect rect,
+                                             MulleEdgeInsets margins)
 {
    if( p)
       _MulleLayoutInitReverse( p, rect, margins);
@@ -120,12 +123,12 @@ static inline void  MulleLayoutInitReverse( struct MulleLayout *p,
 // currently there is nothing to do here, but in the future this
 // might free some stuff in the struct
 //
-static inline void  _MulleLayoutDone( struct MulleLayout *p)
+static inline void   _MulleLayoutDone( struct MulleLayout *p)
 {
 }
 
 
-static inline void  MulleLayoutDone( struct MulleLayout *p)
+static inline void   MulleLayoutDone( struct MulleLayout *p)
 {
    if( p)
       _MulleLayoutDone( p);
@@ -141,23 +144,67 @@ static inline void  MulleLayoutDone( struct MulleLayout *p)
 // ###
 // # #
 // ###
-
-static inline CGSize  _MulleLayoutGetRemainingRowSize( struct MulleLayout *p)
+//
+static inline CGPoint   MulleLayoutGetRowContentOrigin( struct MulleLayout *p)
 {
-   CGSize   size;
-
-   size.width  = CGRectGetMaxX( p->originalRect) - (CGRectGetMaxX( p->rect) + p->margins.right);
-   size.height = CGRectGetMaxY( p->originalRect) - (CGRectGetMaxY( p->rect) + p->margins.bottom);
-
-   return( size);
+   if( ! p)
+      return( CGPointZero);
+   return( MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin));
 }
 
 
-static inline CGSize  MulleLayoutGetRemainingRowSize( struct MulleLayout *p)
+static inline CGSize   MulleLayoutGetRowContentSize( struct MulleLayout *p)
 {
    if( ! p)
       return( CGSizeZero);
-   return( _MulleLayoutGetRemainingRowSize( p));
+   return( MulleEdgeInsetsInsetSize( p->originalMargins, p->originalRect.size));
+}
+
+
+static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
+{
+   CGRect   rect;
+
+   if( ! p)
+      return( CGRectZero);
+   return( MulleEdgeInsetsInsetRect( p->originalMargins, p->originalRect));
+}
+
+
+
+//
+// +++.......
+// + +   ++ .
+// +++   ++ .
+// .........+
+//
+// ###
+// # #
+// ###
+//
+CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p);
+
+static inline CGPoint   MulleLayoutGetRemainingRowContentOrigin( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGPointZero);
+   return( _MulleLayoutGetRemainingRowContentRect( p).origin);
+}
+
+
+static inline CGSize   MulleLayoutGetRemainingRowContentSize( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGSizeZero);
+   return( _MulleLayoutGetRemainingRowContentRect( p).size);
+}
+
+
+static inline CGRect   MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGRectZero);
+   return( _MulleLayoutGetRemainingRowContentRect( p));
 }
 
 
@@ -175,7 +222,7 @@ static inline int   MulleLayoutIsEmptyRow(  struct MulleLayout *p)
 }
 
 
-
+//
 // Each row starts at 0,0. The origin is added to the returned rect on return.
 // When a row is done, the height of the row is added to the origin. This works
 // stricly left to right.

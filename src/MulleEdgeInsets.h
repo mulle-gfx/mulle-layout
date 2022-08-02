@@ -16,9 +16,9 @@
 typedef struct MulleEdgeInsets
 {
    CGFloat   left;
-	CGFloat   top;
+   CGFloat   top;
    CGFloat   right;
-	CGFloat   bottom;
+   CGFloat   bottom;
 } MulleEdgeInsets;
 
 
@@ -33,7 +33,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMake( CGFloat top,
                                                      CGFloat bottom,
                                                      CGFloat right)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -45,7 +45,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeClockwise( CGFloat top,
                                                               CGFloat bottom,
                                                               CGFloat left)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -57,7 +57,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeHV( CGFloat left,
                                                        CGFloat top,
                                                        CGFloat bottom)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -70,7 +70,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariLE( CGFloat top,
                                                             CGFloat left,
                                                             CGFloat right)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -82,7 +82,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariBE( CGFloat right,
                                                             CGFloat bottom,
                                                             CGFloat top)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -98,7 +98,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeNatural( CGFloat left,
                                                             CGFloat right,
                                                             CGFloat bottom)
 {
-	return( (MulleEdgeInsets){ .top    = top,
+   return( (MulleEdgeInsets){ .top    = top,
                               .left   = left,
                               .bottom = bottom,
                               .right  = right });
@@ -111,7 +111,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeNatural( CGFloat left,
 static inline MulleEdgeInsets   MulleEdgeInsetsMakeLR( CGFloat left,
                                                        CGFloat right)
 {
-	return( (MulleEdgeInsets){ .top    = 0,
+   return( (MulleEdgeInsets){ .top    = 0,
                               .left   = left,
                               .bottom = 0,
                               .right  = right });
@@ -122,29 +122,62 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeLR( CGFloat left,
 static inline int   MulleEdgeInsetsEqualToEdgeInsets( MulleEdgeInsets insets1,
                                                       MulleEdgeInsets insets2)
 {
-	return( ! memcmp( &insets1, &insets2, sizeof( MulleEdgeInsets)));
+   return( ! memcmp( &insets1, &insets2, sizeof( MulleEdgeInsets)));
 }
+
+
+static inline CGPoint  MulleEdgeInsetsInsetPoint( MulleEdgeInsets insets,
+                                                  CGPoint origin)
+{
+   origin.x += insets.left;
+   origin.y += insets.top;
+   return( origin);
+}
+
+
+static inline CGPoint  MulleEdgeInsetsExtrudePoint( MulleEdgeInsets insets,
+                                                    CGPoint origin)
+{
+   origin.x -= insets.left;
+   origin.y -= insets.top;
+   return( origin);
+}
+
+
+static inline CGSize   MulleEdgeInsetsInsetSize( MulleEdgeInsets insets,
+                                                 CGSize size)
+{
+   size.width  -= insets.right + insets.left;
+   size.height -= insets.top + insets.bottom;
+   return( size);
+}
+
+
+static inline CGSize   MulleEdgeInsetsExtrudeSize( MulleEdgeInsets insets,
+                                                   CGSize size)
+{
+   size.width  += insets.right + insets.left;
+   size.height += insets.top + insets.bottom;
+   return( size);
+}
+
 
 
 static inline CGRect   MulleEdgeInsetsInsetRect( MulleEdgeInsets insets,
                                                  CGRect rect)
 {
-	rect.origin.x    += insets.left;
-	rect.origin.y    += insets.top;
-	rect.size.width  -= insets.right + insets.left;
-	rect.size.height -= insets.top + insets.bottom;
-	return( rect);
+   rect.origin = MulleEdgeInsetsInsetPoint( insets, rect.origin);
+   rect.size   = MulleEdgeInsetsInsetSize( insets, rect.size);
+   return( rect);
 }
 
 
 static inline CGRect   MulleEdgeInsetsExtrudeRect( MulleEdgeInsets insets,
                                                    CGRect rect)
 {
-	rect.origin.x    -= insets.left;
-	rect.origin.y    -= insets.top;
-	rect.size.width  += insets.right + insets.left;
-	rect.size.height += insets.top + insets.bottom;
-	return( rect);
+   rect.origin = MulleEdgeInsetsExtrudePoint( insets, rect.origin);
+   rect.size   = MulleEdgeInsetsExtrudeSize( insets, rect.size);
+   return( rect);
 }
 
 
@@ -163,7 +196,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsIntersect( MulleEdgeInsets a,
 }
 
 static inline MulleEdgeInsets   MulleEdgeInsetsUnion( MulleEdgeInsets a,
-                                                          MulleEdgeInsets b)
+                                                      MulleEdgeInsets b)
 {
    return( MulleEdgeInsetsMakeAtariBE( a.right > b.right ? a.right : b.right,
                                        a.left > b.left ? a.left : b.left,

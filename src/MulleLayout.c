@@ -32,21 +32,20 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
 
    if( ! p)
       return( CGRectNull);
+// 
 //   if( size.width == 0.0)  // don't want to dirty rect.origin.y then ...
 //      return( CGRectNull);
 
    if( p->reverse)
       margins = MulleEdgeInsetsMake( margins.top, 
-                                    margins.right, 
-                                    margins.bottom, 
-                                    margins.left);
-   rect.size   = size;
-
+                                     margins.right, 
+                                     margins.bottom, 
+                                     margins.left);
+   rect.size     = size;
    // check that size wold fit with top margins added 
-   margins.top = margins.top > p->margins.top
-                     ? margins.top
-                     : p->margins.top;
-
+   margins.top   = margins.top > p->margins.top
+                      ? margins.top
+                      : p->margins.top;
    rect.origin.y = CGRectGetMinY( p->rect) + margins.top;
    if( CGRectGetMaxY( rect) > CGRectGetMaxY( p->originalRect))
       return( CGRectNull);
@@ -64,21 +63,26 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
    if( CGRectGetMaxX( rect) > CGRectGetMaxX( p->originalRect) - p->originalMargins.right)
       return( CGRectNull);
 
-   // change remaining margin to what was given as margin right
-   p->margins.left = margins.right;
+   //
+   // if size is empty, we don't touch the margins or rect of the original
+   //
+   if( size.width != 0.0)
+   {
+      // change remaining margin to what was given as margin right
+      p->margins.left = margins.right;
 
-   // we keep track of the maximum Y extents of the margins,
-   // NOT the largest margin per se
-   if( CGRectGetMaxY( rect) + margins.bottom > CGRectGetMaxY( p->rect) + p->margins.bottom)
-      p->margins.bottom = margins.bottom;
+      // we keep track of the maximum Y extents of the margins,
+      // NOT the largest margin per se
+      if( CGRectGetMaxY( rect) + margins.bottom > CGRectGetMaxY( p->rect) + p->margins.bottom)
+         p->margins.bottom = margins.bottom;
 
-   p->rect = CGRectUnion( p->rect, rect);
+      p->rect = CGRectUnion( p->rect, rect);
+   }
 
    if( p->reverse)
       rect = CGRectMirrorInRectH( rect, p->originalRect);
    return( rect);
 }
-
 
 
 CGRect   _MulleLayoutAddToRowWithOverflow( struct MulleLayout *p,
@@ -117,6 +121,29 @@ CGRect   _MulleLayoutAddRowWithHeight( struct MulleLayout *p,
 
    // immediately add a fresh new row
    _MulleLayoutNewRow( p);
+   return( rect);
+}
+
+
+CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
+{
+   CGRect   rect;
+
+   if( p->rect.size.width != 0.0)
+   {
+      rect.origin.x = CGRectGetMaxX( p->rect) + p->margins.left;
+      rect.origin.y = p->originalRect.origin.y + p->originalMargins.top;
+      rect.size.width  = (CGRectGetMaxX( p->originalRect) - p->originalMargins.right) - (CGRectGetMaxX( p->rect) + p->margins.left);
+      rect.size.height = (CGRectGetMaxY( p->originalRect) - p->originalMargins.bottom) - (CGRectGetMinY( p->originalRect) + p->originalMargins.top);
+   }
+   else      
+   {
+      rect.origin = MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin);
+      rect.size   = MulleEdgeInsetsInsetSize( p->originalMargins, p->originalRect.size);
+   }
+
+   if( p->reverse)
+      rect = CGRectMirrorInRectH( rect, p->originalRect);
    return( rect);
 }
 

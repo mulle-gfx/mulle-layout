@@ -12,4 +12,5 @@ endif()
 #
 set( SOURCES
 src/main-layout.m
+src/main-remaining.m
 )

@@ -185,11 +185,27 @@ static inline CGRect   CGRectMirrorInRectH( CGRect rect, CGRect container)
 }
 
 
+static inline CGPoint   CGPointMirrorInRectH( CGPoint origin, CGRect container)
+{
+   // flip (X->Z): see pic
+   origin.x = CGRectGetMinX( container) + (CGRectGetMaxX( container) - origin.x);
+   return( origin);
+}
+
+
 static inline CGRect   CGRectMirrorInRectV( CGRect rect, CGRect container)
 {
    // flip (Y->Z)
    rect.origin.y = CGRectGetMinY( container) + (CGRectGetMaxY( container) - CGRectGetMaxY( rect));
    return( rect);
+}
+
+
+static inline CGPoint   CGPointMirrorInRectV( CGPoint origin, CGRect container)
+{
+   // flip (Y->Z)
+   origin.y = CGRectGetMinY( container) + (CGRectGetMaxY( container) - origin.y);
+   return( origin);
 }
 
 
