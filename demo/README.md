@@ -1,11 +1,32 @@
 # demos
 
-#### 🙄 demos
+#### ⛺ layout demos
 
-The demos actually require MulleUICore to run. It's too tedious to set
-everything up again for linking with glfw and basically that's what
-MulleUICore is there for anyway.
+The demos require MulleUI to run.
 
+
+## layout
+
+This is a showcase of the various layout algorithms. The demo is using
+"partitioning", which is the cutting up of a rectangle into rows and columns.
+
+First the window space is paritioned into five rows, and then each row is
+partioned into the required amount of columns.
+
+The first row demos "contentMode", which is the placement of a rectangle
+within another rectangle.
+
+The second and third rows are demos of "placement" a rectangle is placed in
+relationship to another rectangle with disregard to the surrounding space.
+
+The fourth row is a demo of placing two rectangles adjacent in a surrounding
+space with some alignment.
+
+The fifth row demos "manual" layouting. Rectangles are added in column row
+fashion (the last rectangle won't fit).
+
+![layout](layout.png)
+[src/main-layout.m]()
 
 
 ## Build and Run

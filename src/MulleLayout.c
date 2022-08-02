@@ -3,6 +3,8 @@
 //
 #include "MulleLayout.h"
 
+#include "MulleLayoutContent.h"
+
 #include "include-private.h"
 
 
@@ -21,7 +23,6 @@ void   _MulleLayoutNewRow( struct MulleLayout *p)
 }
 
 
-
 CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
                                CGSize size,
                                MulleEdgeInsets margins)
@@ -34,8 +35,14 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
 //   if( size.width == 0.0)  // don't want to dirty rect.origin.y then ...
 //      return( CGRectNull);
 
-   rect.size  = size;
+   if( p->reverse)
+      margins = MulleEdgeInsetsMake( margins.top, 
+                                    margins.right, 
+                                    margins.bottom, 
+                                    margins.left);
+   rect.size   = size;
 
+   // check that size wold fit with top margins added 
    margins.top = margins.top > p->margins.top
                      ? margins.top
                      : p->margins.top;
@@ -44,10 +51,10 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
    if( CGRectGetMaxY( rect) > CGRectGetMaxY( p->originalRect))
       return( CGRectNull);
 
-   margins.left = margins.left > p->margins.right
-                     ? margins.left
-                     : p->margins.right;
-   rect.origin.x = CGRectGetMaxX( p->rect) + margins.left;
+   // use larger margin for horizontal check
+   rect.origin.x = CGRectGetMaxX( p->rect) + (margins.left > p->margins.left
+                                                ? margins.left
+                                                : p->margins.left);
 
    //
    // check that we don't extend over space, we only check against original
@@ -57,10 +64,8 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
    if( CGRectGetMaxX( rect) > CGRectGetMaxX( p->originalRect) - p->originalMargins.right)
       return( CGRectNull);
 
-   // left margin is now "fixed" and can be subtracted
-   p->margins.right = p->originalMargins.right > margins.right
-                         ? p->originalMargins.right
-                         : margins.right;
+   // change remaining margin to what was given as margin right
+   p->margins.left = margins.right;
 
    // we keep track of the maximum Y extents of the margins,
    // NOT the largest margin per se
@@ -68,8 +73,12 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
       p->margins.bottom = margins.bottom;
 
    p->rect = CGRectUnion( p->rect, rect);
+
+   if( p->reverse)
+      rect = CGRectMirrorInRectH( rect, p->originalRect);
    return( rect);
 }
+
 
 
 CGRect   _MulleLayoutAddToRowWithOverflow( struct MulleLayout *p,
@@ -110,3 +119,4 @@ CGRect   _MulleLayoutAddRowWithHeight( struct MulleLayout *p,
    _MulleLayoutNewRow( p);
    return( rect);
 }
+

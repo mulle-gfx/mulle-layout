@@ -28,7 +28,8 @@ void   CGRectPartitionVertically( CGRect frame,
    CGRect  *q;
    CGRect  *sentinel;
 
-   assert( n);
+   if( ! n || ! rects)
+      return;
 
    q              = rects;
    q->origin      = frame.origin;
@@ -70,7 +71,8 @@ void   CGRectPartitionHorizontally( CGRect frame,
    CGRect  *q;
    CGRect  *sentinel;
 
-   assert( n);
+   if( ! n || ! rects)
+      return;
 
    q              = rects;
    q->origin      = frame.origin;
@@ -89,7 +91,6 @@ void   CGRectPartitionHorizontally( CGRect frame,
       ++p;
    }
 }
-
 
 
 unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4])
@@ -269,3 +270,35 @@ void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount,
             abort();
     }
 }
+
+
+
+void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
+                                          CGSize space,
+                                          unsigned int rowSize,  //
+                                          unsigned int columnSize,
+                                          CGRect *rects)
+{
+   CGRect         *rows;
+   CGRect         *columns;
+   unsigned int   i;
+
+   if( ! rects)
+      return;
+
+   // put at end of rects
+   rows    = &rects[ rowSize * columnSize - rowSize];
+   columns = rects;
+
+   CGRectPartitionVertically( frame, space.height, rowSize, rows);
+
+   for( i = 0; i < rowSize; i++)
+   {
+      CGRectPartitionHorizontally( *rows, space.width, columnSize, columns);
+
+      rows++;
+      columns += columnSize;
+   }
+}
+
+

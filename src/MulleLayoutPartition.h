@@ -100,7 +100,52 @@ typedef enum
  *    x-----------------------------x
  *   0,height-amount)               (width,height-amount)
  */
-void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge);
+void   CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge);
+
+
+
+static inline CGRect   CGRect2DArrayGetRowColumn( CGRect *rects,
+                                                  int row,
+                                                  int column,
+                                                  unsigned int columnSize)
+{
+   return( rects[ columnSize * row + column]);
+}
+
+
+static inline CGRect *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
+                                                        int row,
+                                                        int column,
+                                                        unsigned int columnSize)
+{
+   return( &rects[ columnSize * row + column]);
+}
+
+
+
+// partition two dimensionally like 2x2 4x3 and so on
+// rects must have enough space for verticalCount * horizontalCount
+// CGRects
+void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
+                                          CGSize space,
+                                          unsigned int rowSize,  //
+                                          unsigned int columnSize,
+                                          CGRect *rects);
+
+// some  conveniences for often used partitions
+static inline void   CGRectPartition2x2( CGRect frame,
+                                         CGSize space,
+                                         CGRect rects[ 2][ 2]) // h w
+{
+   CGRectPartitionIntoRowsAndColumns( frame, space, 2, 2, (CGRect *) rects);
+}
+
+static inline void   CGRectPartition3x3( CGRect frame,
+                                         CGSize space,
+                                         CGRect rects[ 3][ 3]) // h w
+{
+   CGRectPartitionIntoRowsAndColumns( frame, space, 3, 3, (CGRect *) rects);
+}
 
 
 #endif

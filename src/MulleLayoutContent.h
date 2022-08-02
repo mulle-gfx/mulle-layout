@@ -6,6 +6,9 @@
 
 #include "include.h"
 
+#include <stdint.h>
+
+
 //
 // Layout content is concerned about placing a rectangle of some size
 // inside another rectangle of known size.
@@ -18,7 +21,10 @@
 //  |             |
 //  '-------------'
 //
-typedef enum
+
+// TODO: make    CGDirectionUp down ?
+
+enum CGContentMode
 {
    CGContentModeScaleToFill,
    CGContentModeScaleAspectFit,
@@ -38,10 +44,11 @@ typedef enum
 
    // it's CenterPoint to disinguish from Center, which is used for the
    // Y axis (and Middle for the X axis)
-   CGContentModeCenterPoint,
-} CGContentMode;
+   CGContentModeCenterPoint
+};
 #define N_CGContentModes 12
 
+typedef uintptr_t    CGContentMode;
 
 extern char    *CGContentModeNames[ N_CGContentModes];
 char           *CGContentModeUTF8String( CGContentMode mode);
@@ -66,6 +73,10 @@ static inline CGFloat   CGSizeGetAspectRatio( CGSize size)
 
 CGFloat   CGSizeGetAspectFitFactor( CGSize dstSize, CGSize srcSize);
 CGFloat   CGSizeGetAspectFillFactor( CGSize dstSize, CGSize srcSize);
+
+CGSize  CGSizeAspectFitToSize( CGSize size, CGSize containerSize);
+CGSize  CGSizeAspectFillToSize( CGSize size, CGSize containerSize);
+
 
 CGRect    CGSizePlaceInRectWithAspectCorrection( CGSize size, CGRect rect, int fill);
 
@@ -154,5 +165,32 @@ static inline CGSize   CGRectGetLargestSquareSize( CGRect rect)
    square.height   = square.width;
    return( square);
 }
+
+
+// Mirror a rect within a rect, the rect contents aren't flipped,
+// (which would happen if the size becomes negative).
+//
+//  .-----------.     .-----------.
+//  |    .----X |     |           |
+//  |    |rect| |     | Z----.    |  
+//  |    Y----' |     | |rect|    |  
+//  |           |     | '----'    |
+//  '-----------'     '-----------'
+//  container        container
+static inline CGRect   CGRectMirrorInRectH( CGRect rect, CGRect container)
+{
+   // flip (X->Z): see pic
+   rect.origin.x = CGRectGetMinX( container) + (CGRectGetMaxX( container) - CGRectGetMaxX( rect));
+   return( rect);
+}
+
+
+static inline CGRect   CGRectMirrorInRectV( CGRect rect, CGRect container)
+{
+   // flip (Y->Z)
+   rect.origin.y = CGRectGetMinY( container) + (CGRectGetMaxY( container) - CGRectGetMaxY( rect));
+   return( rect);
+}
+
 
 #endif

@@ -33,10 +33,10 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMake( CGFloat top,
                                                      CGFloat bottom,
                                                      CGFloat right)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
 
 // this is probably the most common way, looking like CSS dox
@@ -45,10 +45,10 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeClockwise( CGFloat top,
                                                               CGFloat bottom,
                                                               CGFloat left)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
 
 // this keeps related values together best
@@ -57,10 +57,10 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeHV( CGFloat left,
                                                        CGFloat top,
                                                        CGFloat bottom)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
 
 // order of atari joystick bits, should have been made into law really
@@ -70,10 +70,10 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariLE( CGFloat top,
                                                             CGFloat left,
                                                             CGFloat right)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
 
 // this is big endian, which is my actual mind model
@@ -82,10 +82,10 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariBE( CGFloat right,
                                                             CGFloat bottom,
                                                             CGFloat top)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
 
 
@@ -98,11 +98,25 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeNatural( CGFloat left,
                                                             CGFloat right,
                                                             CGFloat bottom)
 {
-	return( (MulleEdgeInsets){ .top = top,
-                              .left = left,
+	return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
                               .bottom = bottom,
-                              .right = right });
+                              .right  = right });
 }
+
+
+//
+// Left Right only is fairly often used, avoids T/L coordinates
+//
+static inline MulleEdgeInsets   MulleEdgeInsetsMakeLR( CGFloat left,
+                                                       CGFloat right)
+{
+	return( (MulleEdgeInsets){ .top    = 0,
+                              .left   = left,
+                              .bottom = 0,
+                              .right  = right });
+}
+
 
 
 static inline int   MulleEdgeInsetsEqualToEdgeInsets( MulleEdgeInsets insets1,

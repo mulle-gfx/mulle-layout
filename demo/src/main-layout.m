@@ -14,6 +14,9 @@ void   drawContentMode( NVGcontext *vg,
    CGRect   smallRect;
    CGFloat  hue;
 
+   /*
+    * draw border
+    */
    nvgBeginPath( vg);
    {
       nvgRect( vg, rect.origin.x,
@@ -25,6 +28,9 @@ void   drawContentMode( NVGcontext *vg,
    }
    nvgStroke( vg);
 
+   /*
+    * smaller rect is half size
+    */
    size.width  = rect.size.width  / 2.0;
    size.height = rect.size.height / 2.0 > size.width ? size.width : rect.size.height / 2.0;
 

@@ -45,6 +45,33 @@ CGFloat   CGSizeGetAspectFillFactor( CGSize dstSize, CGSize srcSize)
 }
 
 
+CGSize  CGSizeAspectFitToSize( CGSize size, CGSize containerSize)
+{
+   CGFloat  aspectScale;
+
+   if( size.height == 0.0 || size.width == 0.0  || containerSize.height == 0.0)
+      return( CGSizeZero);
+
+   aspectScale = CGSizeGetAspectFitFactor(containerSize, size);
+
+   return( CGSizeMake( size.width * aspectScale, size.height * aspectScale));
+}
+
+
+CGSize  CGSizeAspectFillToSize( CGSize size, CGSize containerSize)
+{
+   CGFloat  aspectScale;
+
+   if( size.height == 0.0 || size.width == 0.0  || containerSize.height == 0.0)
+      return( CGSizeZero);
+
+   aspectScale = CGSizeGetAspectFillFactor( containerSize, size);
+
+   return( CGSizeMake( size.width * aspectScale, size.height * aspectScale));
+}
+
+
+
 CGRect  CGSizePlaceInRectWithAspectCorrection( CGSize size,
                                                CGRect rect,
                                                int fill)
@@ -166,7 +193,7 @@ char  *CGContentModeNames[] =
 
 char  *CGContentModeUTF8String( CGContentMode mode)
 {
-   assert( mode >= CGContentModeScaleToFill && mode <= CGContentModeBottomRight);
+   assert( mode >= CGContentModeScaleToFill && mode <= CGContentModeCenterPoint);
    return( CGContentModeNames[ mode]);
 }
 
