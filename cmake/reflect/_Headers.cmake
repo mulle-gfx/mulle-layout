@@ -49,6 +49,7 @@ src/include.h
 #
 set( PUBLIC_HEADERS
 src/MulleEdgeInsets.h
+src/MulleGrid.h
 src/MulleLayoutContent.h
 src/MulleLayoutPartition.h
 src/MulleLayoutPlacement.h

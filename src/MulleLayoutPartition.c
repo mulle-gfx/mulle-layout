@@ -176,15 +176,44 @@ unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 
       }
    }
 
-
    return( i);
+}
+
+
+void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
+                                          CGSize space,
+                                          unsigned int rowSize,  //
+                                          unsigned int columnSize,
+                                          CGRect *rects)
+{
+   CGRect         *rows;
+   CGRect         *columns;
+   unsigned int   i;
+
+   if( ! rects)
+      return;
+
+   // put at end of rects
+   rows    = &rects[ rowSize * columnSize - rowSize];
+   columns = rects;
+
+   CGRectPartitionVertically( frame, space.height, rowSize, rows);
+
+   for( i = 0; i < rowSize; i++)
+   {
+      CGRectPartitionHorizontally( *rows, space.width, columnSize, columns);
+
+      rows++;
+      columns += columnSize;
+   }
 }
 
 
 /**
  @Status Interoperable
 */
-void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge) {
+void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge) 
+{
     if( ! slice || ! remainder)
       return;
 
@@ -194,7 +223,7 @@ void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount,
         return;
     }
 
-    amount = 0.0f > amount ? 0.0f : amount;
+    amount = amount < 0.0f ? 0.0f : amount;
     rect   = CGRectStandardize(rect);
 
     /*
@@ -270,35 +299,4 @@ void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount,
             abort();
     }
 }
-
-
-
-void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
-                                          CGSize space,
-                                          unsigned int rowSize,  //
-                                          unsigned int columnSize,
-                                          CGRect *rects)
-{
-   CGRect         *rows;
-   CGRect         *columns;
-   unsigned int   i;
-
-   if( ! rects)
-      return;
-
-   // put at end of rects
-   rows    = &rects[ rowSize * columnSize - rowSize];
-   columns = rects;
-
-   CGRectPartitionVertically( frame, space.height, rowSize, rows);
-
-   for( i = 0; i < rowSize; i++)
-   {
-      CGRectPartitionHorizontally( *rows, space.width, columnSize, columns);
-
-      rows++;
-      columns += columnSize;
-   }
-}
-
 

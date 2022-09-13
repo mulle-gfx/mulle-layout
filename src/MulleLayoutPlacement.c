@@ -12,8 +12,8 @@
 // assume "placement" is a constant, then this all boils down to very little
 //
 CGPoint   CGRectPlaceNextToRect( CGRect rect,
-                                    CGRect other,
-                                    MulleLayoutPlacement placement)
+                                 CGRect other,
+                                 MulleLayoutPlacement placement)
 {
    CGPoint      origin;
 
@@ -84,11 +84,11 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
 // fits.
 //
 CGPoint   CGRectPlaceNextToRectInSpace( CGRect rect,
-                                           CGRect other,
-                                           CGRect space,
-                                           uintptr_t n_preferences,
-                                           unsigned char *preferences,
-                                           intptr_t fallback)
+                                        CGRect other,
+                                        CGRect space,
+                                        uintptr_t n_preferences,
+                                        unsigned char *preferences,
+                                        intptr_t fallback)
 
 {
    unsigned char   *p;

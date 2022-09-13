@@ -10,7 +10,7 @@
 
 
 //
-// Partition divides a rectangle into smaller rectangles
+// Partition divides a rectangle into smaller rectangles. 
 //
 
 // mulle additions:
@@ -29,6 +29,26 @@ void   CGRectPartitionHorizontally( CGRect frame,
                                     uintptr_t n,
                                     CGRect *rects);
 
+
+// different name, because I am used to CGRectPartitionIntoRowsAndColumns
+static inline void   CGRectPartitionIntoColumns( CGRect frame,
+                                                 CGFloat space,
+                                                 uintptr_t n,
+                                                 CGRect *rects)
+{
+   CGRectPartitionHorizontally( frame, space, n, rects);
+}
+
+
+// different name, because I prefer H over Horizontally at the moment
+static inline void   CGRectPartitionH( CGRect frame,
+                                       CGFloat space,
+                                       uintptr_t n,
+                                       CGRect *rects)
+{
+   CGRectPartitionHorizontally( frame, space, n, rects);
+}
+
 //
 // as above but vertically
 //
@@ -36,6 +56,25 @@ void   CGRectPartitionVertically( CGRect frame,
                                   CGFloat space,
                                   uintptr_t n,
                                   CGRect *rects);
+
+
+
+static inline void   CGRectPartitionIntoRows( CGRect frame,
+                                              CGFloat space,
+                                              uintptr_t n,
+                                              CGRect *rects)
+{
+   CGRectPartitionVertically( frame, space, n, rects);
+}
+
+
+static inline void   CGRectPartitionV( CGRect frame,
+                                       CGFloat space,
+                                       uintptr_t n,
+                                       CGRect *rects)
+{
+   CGRectPartitionVertically( frame, space, n, rects);
+}
 
 
 // The original
@@ -63,14 +102,15 @@ void   CGRectPartitionVertically( CGRect frame,
 unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4]);
 
 
-
-typedef enum
+enum
 {
-   CGRectMinXEdge,
-   CGRectMinYEdge,
-   CGRectMaxXEdge,
-   CGRectMaxYEdge
-} CGRectEdge;
+   CGRectMinXEdge = CGDirectionLeft,
+   CGRectMinYEdge = CGDirectionTop,
+   CGRectMaxXEdge = CGDirectionRight,
+   CGRectMaxYEdge = CGDirectionBottom
+};
+
+typedef uintptr_t   CGRectEdge;
 
 
 
@@ -100,8 +140,11 @@ typedef enum
  *    x-----------------------------x
  *   0,height-amount)               (width,height-amount)
  */
-void   CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge);
-
+void   CGRectDivide( CGRect rect, 
+                     CGRect* slice, 
+                     CGRect* remainder, 
+                     CGFloat amount, 
+                     CGRectEdge edge);
 
 
 static inline CGRect   CGRect2DArrayGetRowColumn( CGRect *rects,
@@ -113,10 +156,10 @@ static inline CGRect   CGRect2DArrayGetRowColumn( CGRect *rects,
 }
 
 
-static inline CGRect *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
-                                                        int row,
-                                                        int column,
-                                                        unsigned int columnSize)
+static inline CGRect   *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
+                                                          int row,
+                                                          int column,
+                                                          unsigned int columnSize)
 {
    return( &rects[ columnSize * row + column]);
 }
@@ -128,9 +171,29 @@ static inline CGRect *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
 // CGRects
 void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
                                           CGSize space,
-                                          unsigned int rowSize,  //
+                                          unsigned int rowSize,  
                                           unsigned int columnSize,
                                           CGRect *rects);
+
+static inline void   CGRectPartitionVH( CGRect frame,
+                                        CGSize space,
+                                        unsigned int rowSize,  
+                                        unsigned int columnSize,
+                                        CGRect *rects)
+{
+   return( CGRectPartitionIntoRowsAndColumns( frame, space, rowSize, columnSize, rects));
+}
+
+
+static inline void   CGRectPartitionVerticallyAndHorizontally( CGRect frame,
+                                                               CGSize space,
+                                                               unsigned int rowSize,  
+                                                               unsigned int columnSize,
+                                                               CGRect *rects)
+{
+   return( CGRectPartitionIntoRowsAndColumns( frame, space, rowSize, columnSize, rects));
+}
+
 
 // some  conveniences for often used partitions
 static inline void   CGRectPartition2x2( CGRect frame,
@@ -139,6 +202,7 @@ static inline void   CGRectPartition2x2( CGRect frame,
 {
    CGRectPartitionIntoRowsAndColumns( frame, space, 2, 2, (CGRect *) rects);
 }
+
 
 static inline void   CGRectPartition3x3( CGRect frame,
                                          CGSize space,

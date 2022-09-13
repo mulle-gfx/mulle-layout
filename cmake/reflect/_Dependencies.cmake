@@ -12,7 +12,7 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 #
-# Generated from sourcetree: C0E0C86F-41F1-405A-BDFD-A7A68FDABEA3;mulle-geometry;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import;
+# Generated from sourcetree: C0E0C86F-41F1-405A-BDFD-A7A68FDABEA3;mulle-geometry;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-geometry no-link`
 # Disable for this platform: `mulle-sourcetree mark mulle-geometry no-cmake-platform-${MULLE_UNAME}`
 #

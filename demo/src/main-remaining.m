@@ -46,7 +46,7 @@ static void   drawStuff( CALayer *layer, void *context, BOOL reverse, struct Mul
    // CGRectMake( 100, 100, 300, 200)
    //
    container = CGRectMake( 0, 0, 300, 150);
-   drawFilledRect( vg, container, CGColorMakeRGBA( 0.66, 0.66, 0.66, 0.66));
+   drawFilledRect( vg, container, CGColorMakeWithRGBA( 0.66, 0.66, 0.66, 0.66));
 
    if( reverse)
       MulleLayoutInitReverse( &layout, container, MulleEdgeInsetsMake( 10, 15, 20, 25));
@@ -57,13 +57,13 @@ static void   drawStuff( CALayer *layer, void *context, BOOL reverse, struct Mul
    drawStrokedRect( vg, rect, CGColorMakeRed());
 
    rect = MulleLayoutAddToRow( &layout, CGSizeMake( 50, 50), MulleEdgeInsetsMake( 7, 14, 21, 28));
-   drawFilledRect( vg, rect, CGColorMakeRGBA( 0.0, 1.0, 0.0, 0.66));
+   drawFilledRect( vg, rect, CGColorMakeWithRGBA( 0.0, 1.0, 0.0, 0.66));
 
    rect = MulleLayoutGetRemainingRowContentRect( &layout);
    drawStrokedRect( vg, rect, CGColorMakeRed());
 
    rect = MulleLayoutAddToRow( &layout, CGSizeMake( 50, 50), insets);
-   drawFilledRect( vg, rect, CGColorMakeRGBA( 0.0, 0.0, 1.0, 0.66));
+   drawFilledRect( vg, rect, CGColorMakeWithRGBA( 0.0, 0.0, 1.0, 0.66));
 
    rect = MulleLayoutGetRemainingRowContentRect( &layout);
    drawStrokedRect( vg, rect, CGColorMakeYellow());

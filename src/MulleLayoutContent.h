@@ -50,6 +50,7 @@ enum CGContentMode
 
 typedef uintptr_t    CGContentMode;
 
+
 extern char    *CGContentModeNames[ N_CGContentModes];
 char           *CGContentModeUTF8String( CGContentMode mode);
 CGContentMode  CGContentModeParseCString( char *s);
@@ -59,15 +60,6 @@ static inline int   CGContentModeIsScaling( CGContentMode mode)
 {
    return( mode >= CGContentModeScaleToFill &&
            mode <= CGContentModeScaleAspectFill);
-}
-
-
-
-static inline CGFloat   CGSizeGetAspectRatio( CGSize size)
-{
-   if( size.height == 0.0f)
-      return( 0.0f);
-   return( size.width / size.height);
 }
 
 
@@ -84,6 +76,7 @@ static inline CGRect  CGSizePlaceInRectWithAspectFit( CGSize size, CGRect rect)
 {
    return( CGSizePlaceInRectWithAspectCorrection( size, rect, 0));
 }
+
 
 static inline CGRect  CGSizePlaceInRectWithAspectFill( CGSize size, CGRect rect)
 {

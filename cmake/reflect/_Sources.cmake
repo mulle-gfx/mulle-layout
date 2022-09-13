@@ -11,6 +11,7 @@ endif()
 # contents selected with patternfile ??-source--sources
 #
 set( SOURCES
+src/MulleGrid.c
 src/MulleLayoutContent.c
 src/MulleLayoutPartition.c
 src/MulleLayoutPlacement.c

@@ -22,6 +22,8 @@ typedef struct MulleEdgeInsets
 } MulleEdgeInsets;
 
 
+#define MulleEdgeInsetsData( t, l, b, r)  { (l), (t), (r), (b) }
+
 //
 // TLBR (counter clockwise) isn't the worst order imaginable, that would be IMO
 // RTBL, but it's a second or third. We use it because that's how Apple did it.
@@ -38,6 +40,30 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMake( CGFloat top,
                               .bottom = bottom,
                               .right  = right });
 }
+
+static inline MulleEdgeInsets   MulleEdgeInsetsMakeTLBR( CGFloat top,
+                                                         CGFloat left,
+                                                         CGFloat bottom,
+                                                         CGFloat right)
+{
+   return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
+                              .bottom = bottom,
+                              .right  = right });
+}
+
+
+static inline MulleEdgeInsets   MulleEdgeInsetsMakeCounterClockwise( CGFloat top,
+                                                                     CGFloat left,
+                                                                     CGFloat bottom,
+                                                                     CGFloat right)
+{
+   return( (MulleEdgeInsets){ .top    = top,
+                              .left   = left,
+                              .bottom = bottom,
+                              .right  = right });
+}
+
 
 // this is probably the most common way, looking like CSS dox
 static inline MulleEdgeInsets   MulleEdgeInsetsMakeClockwise( CGFloat top,
@@ -115,6 +141,16 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeLR( CGFloat left,
                               .left   = left,
                               .bottom = 0,
                               .right  = right });
+}
+
+
+static inline MulleEdgeInsets   MulleEdgeInsetsMakeTB( CGFloat top,
+                                                       CGFloat bottom)
+{
+   return( (MulleEdgeInsets){ .top    = top,
+                              .left   = 0,
+                              .bottom = bottom,
+                              .right  = 0 });
 }
 
 

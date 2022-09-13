@@ -9,6 +9,172 @@
 #include <stdint.h>
 
 
+
+// ### Alignment
+
+//         : x        :x  
+// .-------:-.        .---------.
+// |       : |        |         |
+// |  rect : |   ->   | result  |
+// |       : |        |         |
+// '-------:-'        '---------'
+//         :          :
+// adjust rect, so that left point is on x
+static inline CGRect   CGRectAlignLeft( CGRect rect, CGFloat y)
+{
+   rect.origin.y = y;
+   return( rect);
+}
+
+
+//         : x             : x  
+// .-------:-.        .---------.
+// |       : |        |    :    |
+// |  rect : |   ->   | result  |
+// |       : |        |    :    |
+// '-------:-'        '---------'
+//         :               :
+// adjust rect, so that center point is on x
+static inline CGRect   CGRectAlignCenter( CGRect rect, CGFloat x)
+{
+   rect.origin.x = x - rect.size.width / 2.0f;
+   return( rect);
+}
+
+//         : x                  : x
+// .-------:-.        .---------.
+// |       : |        |         |
+// |  rect : |   ->   | result  |
+// |       : |        |         |
+// '-------:-'        '---------'
+//         :                    :
+// adjust rect, so that right point is on x
+static inline CGRect   CGRectAlignRight( CGRect rect, CGFloat y)
+{
+   rect.origin.y = y - rect.size.width;
+   return( rect);
+}
+
+
+// ............. y            
+// .----------.       ..----------.. y
+// |rect      |        |result    |
+// |          |   ->   |          |
+// |          |        |          |
+// '----------'        '----------'
+//                          
+// adjust rect, so that centerpoint is on y
+static inline CGRect   CGRectAlignTop( CGRect rect, CGFloat y)
+{
+   rect.origin.y = y;
+   return( rect);
+}
+
+
+
+// ............. y            
+// .----------.        .----------.
+// |rect      |        |result    |
+// |          |   ->  .|..........|.y
+// |          |        |          |
+// '----------'        '----------'
+//                          
+// adjust rect, so that centerpoint is on y
+static inline CGRect   CGRectAlignMiddle( CGRect rect, CGFloat y)
+{
+   rect.origin.y = y - rect.size.height / 2.0f;
+   return( rect);
+}
+
+
+// ............. y            
+// .----------.        .----------.
+// |rect      |        |result    |
+// |          |   ->   |          |
+// |          |        |          |
+// '----------'       .'----------'. y
+//                          
+// adjust rect, so that bottom is on y
+static inline CGRect   CGRectAlignBottom( CGRect rect, CGFloat y)
+{
+   rect.origin.y = y - rect.size.height;
+   return( rect);
+}
+
+
+// ### Simple placement
+
+// .--------. .------.
+// |        |s|      |
+// | result |p| rect |
+// |        |c|      |
+// '--------' '------'
+//    width
+static inline CGRect   CGRectPlaceBeforeRect( CGRect rect, CGFloat spacing, CGFloat width)
+{
+   rect.origin.x   = CGRectGetMinX( rect) - width - spacing;
+   rect.size.width = width;
+   return( rect);
+}
+
+
+// .--------. .-----------.
+// |        |s|           |
+// |  rect  |p|  result   |
+// |        |c|           |
+// '--------' '-----------'
+//                width
+static inline CGRect   CGRectPlaceAfterRect( CGRect rect, CGFloat spacing, CGFloat width)
+{
+   rect.origin.x   = CGRectGetMaxX( rect) + spacing;
+   rect.size.width = width;
+   return( rect);
+}
+
+
+// .--------. 
+// |        |
+// | result | height
+// |        |
+// '--------'
+//  spacing
+// .--------. 
+// |        |
+// |        |
+// |  rect  |
+// |        |
+// |        | 
+// '--------' 
+static inline CGRect   CGRectPlaceAboveRect( CGRect rect, CGFloat spacing, CGFloat height)
+{
+   rect.origin.y    = CGRectGetMinY( rect)  - height - spacing;
+   rect.size.height = height;
+   return( rect);
+}
+
+
+// .--------. 
+// |        |
+// |        |
+// |  rect  | 
+// |        |
+// |        |
+// '--------'
+// .--------. 
+// |        |
+// | result | height
+// |        | 
+// '--------' 
+
+static inline CGRect   CGRectPlaceBelowRect( CGRect rect, CGFloat spacing, CGFloat height)
+{
+   rect.origin.y    = CGRectGetMaxY( rect) + spacing;
+   rect.size.height = height;
+   return( rect);
+}
+
+
+
 //
 // Layout placement is concerned about placing a rectangle in proximity of
 // another rectangle.
@@ -42,6 +208,8 @@ enum MulleLayoutVerticalPlacement
    MulleLayoutPlacementBottomAligned = 5     // aligns bottom of rect with other top
 };
 
+typedef uintptr_t    MulleLayoutVerticalPlacement;
+
 enum MulleLayoutHorizontalPlacement
 {
    MulleLayoutPlacementKeepX         = 0,    // aligns bottom of rect with other top
@@ -52,30 +220,32 @@ enum MulleLayoutHorizontalPlacement
    MulleLayoutPlacementRightAligned  = 5     // aligns right edge of rect with other right
 };
 
+typedef uintptr_t    MulleLayoutHorizontalPlacement;
+
 
 // for static init
 #define _MulleLayoutPlacementMake( h, v)   (((h) << 4) | (v))
 
 
 static inline  MulleLayoutPlacement
-   MulleLayoutPlacementMake( enum MulleLayoutHorizontalPlacement h,
-                             enum MulleLayoutVerticalPlacement v)
+   MulleLayoutPlacementMake( MulleLayoutHorizontalPlacement h,
+                             MulleLayoutVerticalPlacement v)
 {
    return( (h << 4) | v);
 }
 
 
-static inline enum MulleLayoutVerticalPlacement
+static inline MulleLayoutVerticalPlacement
    MulleLayoutPlacementGetVerticalPlacement( MulleLayoutPlacement value)
 {
-   return( (enum MulleLayoutVerticalPlacement) value & 0xF);
+   return( (MulleLayoutVerticalPlacement) value & 0xF);
 }
 
 
-static inline enum MulleLayoutHorizontalPlacement
+static inline MulleLayoutHorizontalPlacement
    MulleLayoutPlacementGetHorizontalPlacement( MulleLayoutPlacement value)
 {
-   return( (enum MulleLayoutHorizontalPlacement) value >> 4);
+   return( (MulleLayoutHorizontalPlacement) value >> 4);
 }
 
 
@@ -95,22 +265,5 @@ CGPoint   CGRectPlaceNextToRectInSpace( CGRect rect,
                                         uintptr_t n_preferences,
                                         unsigned char *preferences,
                                         intptr_t fallback);
-
-
-
-// so adjust x, so that centers align
-static inline CGRect   CGRectAlignHorizontally( CGRect rect, CGFloat x)
-{
-   rect.origin.x += x - CGRectGetMidX( rect);
-   return( rect);
-}
-
-
-static inline CGRect   CGRectAlignVertically( CGRect rect, CGFloat y)
-{
-   rect.origin.y += y - CGRectGetMidY( rect);
-   return( rect);
-}
-
 
 #endif
