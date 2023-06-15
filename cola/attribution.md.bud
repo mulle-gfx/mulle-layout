@@ -1,0 +1,7 @@
+## Attribution
+
+The library contains the `CGRectDivide` function:
+
+```
+Copyright (c) 2006-2007 Christopher J. W. Lloyd
+Copyright (c) Microsoft. All rights reserved.

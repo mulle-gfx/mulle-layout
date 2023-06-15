@@ -22,7 +22,7 @@
 //  '-------------'
 //
 
-// TODO: make    CGDirectionUp down ?
+// TODO: make    CADirectionUp down ?
 
 enum CGContentMode
 {

@@ -9,7 +9,7 @@
 #include "include.h"
 
 
-#define MULLE_LAYOUT_VERSION   ((0 << 20) | (0 << 8) | 2)
+#define MULLE__LAYOUT_VERSION   ((0 << 20) | (0 << 8) | 2)
 
 #include "_mulle-layout-provide.h"
 

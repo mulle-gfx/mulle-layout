@@ -154,6 +154,25 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeTB( CGFloat top,
 }
 
 
+static inline MulleEdgeInsets   MulleEdgeInsetsMakeU( CGFloat topLeft,
+                                                      CGFloat leftTop,
+                                                      CGFloat bottomRight,
+                                                      CGFloat rightBottom,
+                                                      unsigned int index)
+{
+   if( index == 0)
+      return( (MulleEdgeInsets){ .top    = topLeft,
+                                 .left   = leftTop,
+                                 .bottom = bottomRight,
+                                 .right  = rightBottom });
+
+   return( (MulleEdgeInsets){ .top    = leftTop,
+                              .left   = topLeft,
+                              .bottom = rightBottom,
+                              .right  = bottomRight });
+}
+
+
 
 static inline int   MulleEdgeInsetsEqualToEdgeInsets( MulleEdgeInsets insets1,
                                                       MulleEdgeInsets insets2)
@@ -238,6 +257,18 @@ static inline MulleEdgeInsets   MulleEdgeInsetsUnion( MulleEdgeInsets a,
                                        a.left > b.left ? a.left : b.left,
                                        a.bottom > b.bottom ? a.bottom : b.bottom,
                                        a.top > b.top ? a.top : b.top));
+}
+
+
+static inline CGRect  CGRectInsetUsingEdgeInsets( CGRect rect, MulleEdgeInsets insets)
+{
+   return( MulleEdgeInsetsInsetRect( insets, rect));
+}
+
+
+static inline CGRect  CGRectExtrudeUsingEdgeInsets( CGRect rect, MulleEdgeInsets insets)
+{
+   return( MulleEdgeInsetsExtrudeRect( insets, rect));
 }
 
 #endif

@@ -104,10 +104,10 @@ unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 
 
 enum
 {
-   CGRectMinXEdge = CGDirectionLeft,
-   CGRectMinYEdge = CGDirectionTop,
-   CGRectMaxXEdge = CGDirectionRight,
-   CGRectMaxYEdge = CGDirectionBottom
+   CGRectMinXEdge = CADirectionLeft,
+   CGRectMinYEdge = CADirectionTop,
+   CGRectMaxXEdge = CADirectionRight,
+   CGRectMaxYEdge = CADirectionBottom
 };
 
 typedef uintptr_t   CGRectEdge;

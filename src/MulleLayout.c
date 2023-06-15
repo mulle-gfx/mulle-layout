@@ -27,8 +27,7 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
                                CGSize size,
                                MulleEdgeInsets margins)
 {
-   CGRect    rect;
-   CGFloat   margin;
+   CGRect   rect;
 
    if( ! p)
       return( CGRectNull);

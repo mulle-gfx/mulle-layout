@@ -163,8 +163,6 @@ static inline CGSize   MulleLayoutGetRowContentSize( struct MulleLayout *p)
 
 static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
 {
-   CGRect   rect;
-
    if( ! p)
       return( CGRectZero);
    return( MulleEdgeInsetsInsetRect( p->originalMargins, p->originalRect));

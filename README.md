@@ -7,7 +7,7 @@ This library contains functions for manual layouting of rectangles.
 
 | Datatype             | Description                                                      |
 |----------------------|------------------------------------------------------------------|
-| `CGRectEdge`         | legacy compatibility enum for CGDirection                        |
+| `CGRectEdge`         | legacy compatibility enum for CADirection                        |
 | `CGContentMode`      | an enumeration of various placements like `CGContentModeTopLeft` |
 | `struct MulleLayout` | layout rectangles in row column fashion                          |
 | `struct MulleGrid`   | layout rectangles in a uniform grid                              |

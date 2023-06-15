@@ -1,0 +1,31 @@
+{
+   "name" : "mulle-layout",
+   "version" : "0.0.2",
+   "description" : "Rectangle geometry and manual layouting",
+   "keywords" : [],
+   "license" : "UNLICENSED",
+   "repo" : "MulleUI/mulle-layout",
+   "src" : [
+      "src/include-private.h",
+      "src/include.h",
+      "src/mulle-layout.c",
+      "src/mulle-layout.h",
+      "src/MulleEdgeInsets.h",
+      "src/MulleGrid.c",
+      "src/MulleGrid.h",
+      "src/MulleLayout.c",
+      "src/MulleLayout.h",
+      "src/MulleLayoutContent.c",
+      "src/MulleLayoutContent.h",
+      "src/MulleLayoutPartition.c",
+      "src/MulleLayoutPartition.h",
+      "src/MulleLayoutPlacement.c",
+      "src/MulleLayoutPlacement.h",
+      "src/reflect/_mulle-layout-include-private.h",
+      "src/reflect/_mulle-layout-include.h",
+      "src/reflect/_mulle-layout-provide.h"
+   ],
+   "dependencies" : {
+      "MulleUI/mulle-geometry": "*"
+   }
+}

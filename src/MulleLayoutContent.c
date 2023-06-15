@@ -101,7 +101,6 @@ CGRect   CGSizePlaceInRect( CGSize size,
                             CGContentMode contentMode)
 {
    CGRect   result;
-   CGFloat  aspectScale;
 
    switch( contentMode)
    {
