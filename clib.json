@@ -10,6 +10,7 @@
       "src/include.h",
       "src/mulle-layout.c",
       "src/mulle-layout.h",
+      "src/MulleCornerInsets.h",
       "src/MulleEdgeInsets.h",
       "src/MulleGrid.c",
       "src/MulleGrid.h",

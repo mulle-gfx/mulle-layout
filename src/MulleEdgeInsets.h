@@ -24,6 +24,9 @@ typedef struct MulleEdgeInsets
 
 #define MulleEdgeInsetsData( t, l, b, r)  { (l), (t), (r), (b) }
 
+#define MulleEdgeInsetsZero   MulleEdgeInsetsMake( 0.0f, 0.0f, 0.0f, 0.0f)
+
+
 //
 // TLBR (counter clockwise) isn't the worst order imaginable, that would be IMO
 // RTBL, but it's a second or third. We use it because that's how Apple did it.
@@ -236,7 +239,6 @@ static inline CGRect   MulleEdgeInsetsExtrudeRect( MulleEdgeInsets insets,
 }
 
 
-#define MulleEdgeInsetsZero      MulleEdgeInsetsMake( 0.0f, 0.0f, 0.0f, 0.0f)
 
 
 // possibly too large for inlining usefully
@@ -270,5 +272,6 @@ static inline CGRect  CGRectExtrudeUsingEdgeInsets( CGRect rect, MulleEdgeInsets
 {
    return( MulleEdgeInsetsExtrudeRect( insets, rect));
 }
+
 
 #endif

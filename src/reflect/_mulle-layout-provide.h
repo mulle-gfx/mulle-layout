@@ -9,6 +9,7 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
+#include "MulleCornerInsets.h"
 #include "MulleEdgeInsets.h"
 #include "MulleGrid.h"
 #include "MulleLayoutContent.h"

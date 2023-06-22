@@ -48,6 +48,7 @@ src/include.h
 # contents selected with patternfile ??-header--public-headers
 #
 set( PUBLIC_HEADERS
+src/MulleCornerInsets.h
 src/MulleEdgeInsets.h
 src/MulleGrid.h
 src/MulleLayoutContent.h
