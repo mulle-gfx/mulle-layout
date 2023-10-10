@@ -24,42 +24,54 @@
 
 // TODO: make    CADirectionUp down ?
 
+
 enum CGContentMode
 {
-   CGContentModeScaleToFill,
-   CGContentModeScaleAspectFit,
-   CGContentModeScaleAspectFill,
+   CGContentModeDefault         = 0x0, // the default is CGContentModeScaleToFill
 
-//   CGContentModeRedraw,  // not supported
+   //   CGContentModeRedraw,  // not supported
+   // you can _not_ OR CGContentModeTop and CGContentModeBottom to get "middle"
+   //
+   CGContentModeTop             = CADirectionTop,
+   CGContentModeTopRight        = CADirectionTop | CADirectionRight,
+   CGContentModeRight           = CADirectionRight,
+   CGContentModeBottomRight     = CADirectionBottom | CADirectionRight,
+   CGContentModeBottom          = CADirectionBottom,
+   CGContentModeBottomLeft      = CADirectionBottom | CADirectionLeft,
+   CGContentModeLeft            = CADirectionLeft,
+   CGContentModeTopLeft         = CADirectionTop | CADirectionLeft,
+   CGContentModeCenterPoint     = CADirectionTop
+                                 | CADirectionLeft
+                                 | CADirectionBottom
+                                 | CADirectionRight,
 
-   // circular arrangement, convenient for lazy animations
-   CGContentModeTop,
-   CGContentModeTopRight,
-   CGContentModeRight,
-   CGContentModeBottomRight,
-   CGContentModeBottom,
-   CGContentModeBottomLeft,
-   CGContentModeLeft,
-   CGContentModeTopLeft,
-
-   // it's CenterPoint to disinguish from Center, which is used for the
-   // Y axis (and Middle for the X axis)
-   CGContentModeCenterPoint
+   // CGContentModeScaleToFillHorizontal and CGContentModeScaleToFillVertical
+   // can be mixed with above bits
+   CGContentModeScaleToFillHorizontal    = 0x10,
+   CGContentModeScaleToFillVertical      = 0x20,
+   CGContentModeScaleToFill              = 0x30,  // same as CGContentModeDefault
+   CGContentModeScaleAspectFill          = 0x40,
+   CGContentModeScaleAspectFit           = 0x80
 };
-#define N_CGContentModes 12
 
 typedef uintptr_t    CGContentMode;
 
 
-extern char    *CGContentModeNames[ N_CGContentModes];
 char           *CGContentModeUTF8String( CGContentMode mode);
-CGContentMode  CGContentModeParseCString( char *s);
+//CGContentMode  CGContentModeParseCString( char *s);
 
 
 static inline int   CGContentModeIsScaling( CGContentMode mode)
 {
-   return( mode >= CGContentModeScaleToFill &&
-           mode <= CGContentModeScaleAspectFill);
+   return( mode == CGContentModeDefault || mode >= CGContentModeScaleToFillHorizontal);
+}
+
+
+static inline void   CGContentModeAssert( CGContentMode mode)
+{
+   assert( mode == 0xF || (mode & (CGContentModeRight|CGContentModeLeft)) != (CGContentModeRight|CGContentModeLeft));
+   assert( mode == 0xF || (mode & (CGContentModeTop|CGContentModeBottom)) != (CGContentModeTop|CGContentModeBottom));
+   assert( ! (mode & 0xF0) || ! (mode & 0xF));
 }
 
 
@@ -89,16 +101,28 @@ static inline CGRect  CGSizePlaceInRectWithAspectFill( CGSize size, CGRect rect)
 // given frame using contentMode. If the size is larger than the frame
 // it may overlap (or shrink)
 //
-CGRect   CGSizePlaceInRect( CGSize size,
-                            CGRect rect,
-                            CGContentMode contentMode);
+MULLE__LAYOUT_EXTERN_GLOBAL
+CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode);
 
-static inline CGRect   CGRectPlaceInRect( CGRect r1,
-                                          CGRect r2,
-                                          CGContentMode contentMode)
+static inline
+CGRect   CGRectPlaceInRect( CGRect r1, CGRect r2, CGContentMode contentMode)
 {
-   return( CGSizePlaceInRect( r1.size, r2, contentMode));
+   CGRect   result;
+
+   result = CGSizePlaceInRect( r1.size, r2, contentMode);
+   switch( contentMode)
+   {
+   case CGContentModeScaleToFillHorizontal :
+      result.origin.y  = r2.origin.y;
+      break;
+
+   case CGContentModeScaleToFillVertical :
+      result.origin.x  = r2.origin.x;
+      break;
+   }
+   return( result);
 }
+
 
 
 static inline CGPoint   CGSizeGetCenterPointInRect( CGSize size, CGRect rect)

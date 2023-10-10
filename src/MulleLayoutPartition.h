@@ -24,6 +24,7 @@
 //       '----------------------------------------------------'
 //                                                       frame.size
 
+MULLE__GEOMETRY_EXTERN_GLOBAL
 void   CGRectPartitionHorizontally( CGRect frame,
                                     CGFloat space,
                                     uintptr_t n,
@@ -52,6 +53,7 @@ static inline void   CGRectPartitionH( CGRect frame,
 //
 // as above but vertically
 //
+MULLE__GEOMETRY_EXTERN_GLOBAL
 void   CGRectPartitionVertically( CGRect frame,
                                   CGFloat space,
                                   uintptr_t n,
@@ -97,9 +99,11 @@ static inline void   CGRectPartitionV( CGRect frame,
 //    111
 //    111
 //
-// returns the number of rects created
+// returns the number of rects created. If there is no overlap, you get
+// the original rect back.
 //
-unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4]);
+MULLE__GEOMETRY_EXTERN_GLOBAL
+unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4]);
 
 
 enum
@@ -140,7 +144,8 @@ typedef uintptr_t   CGRectEdge;
  *    x-----------------------------x
  *   0,height-amount)               (width,height-amount)
  */
-void   CGRectDivide( CGRect rect, 
+MULLE__GEOMETRY_EXTERN_GLOBAL
+void   CGRectDivide( CGRect rect,
                      CGRect* slice, 
                      CGRect* remainder, 
                      CGFloat amount, 
@@ -169,6 +174,7 @@ static inline CGRect   *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
 // partition two dimensionally like 2x2 4x3 and so on
 // rects must have enough space for verticalCount * horizontalCount
 // CGRects
+MULLE__GEOMETRY_EXTERN_GLOBAL
 void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
                                           CGSize space,
                                           unsigned int rowSize,  

@@ -30,7 +30,7 @@ static void   test( CGRect layoutRect,
                      size.height,
                      part.origin.x, part.origin.y);
 
-   remainder = MulleLayoutGetRemainingRowSize( &layout);
+   remainder = MulleLayoutGetRemainingRowContentSize( &layout);
    fprintf( stdout, " (%g %g)\n",
                      remainder.width,
                      remainder.height);

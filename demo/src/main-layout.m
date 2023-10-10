@@ -3,12 +3,35 @@
 #import <string.h>
 
 
+
+static CGContentMode   contentModes[ 12] =
+{
+   CGContentModeScaleToFill,
+   CGContentModeScaleAspectFit,
+   CGContentModeScaleAspectFill,
+   CGContentModeCenterPoint,
+
+   CGContentModeTop,
+   CGContentModeBottom,
+   CGContentModeLeft,
+   CGContentModeRight,
+
+   CGContentModeTopLeft,
+   CGContentModeTopRight,
+   CGContentModeBottomLeft,
+   CGContentModeBottomRight
+};
+
+#define N_CGContentModes  (sizeof( contentModes) / sizeof( contentModes[ 0]))
+
+
+
 //
 // draw a square in a rect, with the various contentmodes
 //
 void   drawContentMode( NVGcontext *vg,
                         CGRect rect,
-                        CGContentMode contentMode)
+                        unsigned int contentModeIndex)
 {
    CGSize   size;
    CGRect   smallRect;
@@ -34,7 +57,7 @@ void   drawContentMode( NVGcontext *vg,
    size.width  = rect.size.width  / 2.0;
    size.height = rect.size.height / 2.0 > size.width ? size.width : rect.size.height / 2.0;
 
-   smallRect = CGSizePlaceInRect( size, rect, contentMode);
+   smallRect = CGSizePlaceInRect( size, rect, contentModes[ contentModeIndex]);
    nvgBeginPath( vg);
    {
       nvgRoundedRect( vg, smallRect.origin.x,
@@ -43,7 +66,7 @@ void   drawContentMode( NVGcontext *vg,
                           smallRect.size.height,
                           smallRect.size.width / 10.0);
       nvgStrokeWidth( vg, 2.0);
-      hue = 0.2 + 0.6 * ((double) contentMode / (N_CGContentModes - 1));
+      hue = 0.2 + 0.6 * ((double) contentModeIndex / (N_CGContentModes - 1));
       nvgStrokeColor( vg, CGColorMakeWithHSLA( hue, 1.0, 0.7, 0.7));
    }
    nvgStroke( vg);
@@ -56,10 +79,10 @@ void   drawRectPlacement( NVGcontext *vg,
                           CGRect rect,
                           NSUInteger i)
 {
-   CGSize   size;
-   CGRect   smallRect;
-   CGRect   otherRect;
-   CGFloat  hue;
+   CGSize          size;
+   CGRect          smallRect;
+   CGRect          otherRect;
+   CGFloat         hue;
    CGContentMode   contentMode;
 
    assert( i >= 0 && i <= 36);
@@ -130,7 +153,7 @@ static unsigned char   preferences[] =
 //
 void   drawRectSpacePlacement( NVGcontext *vg,
                                CGRect rect,
-                               CGContentMode rectMode)
+                               NSUInteger contentModeIndex)
 {
    CGSize   size;
    CGRect   smallRect;
@@ -151,7 +174,7 @@ void   drawRectSpacePlacement( NVGcontext *vg,
    size.width  = rect.size.width  / 3.0;
    size.height = rect.size.height / 3.0 > size.width ? size.width : rect.size.height / 3.0;
 
-   smallRect = CGSizePlaceInRect( size, rect, rectMode);
+   smallRect = CGSizePlaceInRect( size, rect, contentModes[ contentModeIndex]);
    nvgBeginPath( vg);
    {
       nvgRoundedRect( vg, smallRect.origin.x,
@@ -160,7 +183,7 @@ void   drawRectSpacePlacement( NVGcontext *vg,
                           smallRect.size.height,
                           smallRect.size.width / 10.0);
       nvgStrokeWidth( vg, 2.0);
-      hue = 0.0 + 0.5 * ((double) rectMode / (N_CGContentModes - 1));
+      hue = 0.0 + 0.5 * ((double) contentModeIndex / (N_CGContentModes - 1));
       nvgStrokeColor( vg, CGColorMakeWithHSLA( hue, 1.0, 0.7, 0.7));
    }
    nvgStroke( vg);
@@ -185,7 +208,7 @@ void   drawRectSpacePlacement( NVGcontext *vg,
                           otherRect.size.width,
                           otherRect.size.height,
                           otherRect.size.width / 10.0);
-      hue = 0.5 + 0.5 * ((double) rectMode / (N_CGContentModes - 1));
+      hue = 0.0 + 0.5 * ((double) contentModeIndex / (N_CGContentModes - 1));
       nvgFillColor( vg, CGColorMakeWithHSLA( hue, 1.0, 0.7, 0.7));
    }
    nvgFill( vg);
@@ -220,7 +243,7 @@ static void   drawLayoutInSpace( NVGcontext *vg, CGRect rect)
                                   CGSizeMake( (rect.size.width - 6.0 - 5 * 10.0) / 6.0,
                                               ((rect.size.height - 6.0) * (i + 1) / 6.0) / 3.0),
                                   MulleEdgeInsetsMake( 0, 0, 0, 10));
-      if( part.size.width == 0.0)
+      if( part.size.width == 0.0f)
       {
          if( flag == YES)
             break;
@@ -253,7 +276,6 @@ static void   drawLayoutInSpace( NVGcontext *vg, CGRect rect)
 
 static void  drawStuff( CALayer *layer, CGContext *context)
 {
-   CGRect              rect;
    struct NVGcontext   *vg;
    CGRect              rows[ N_ROWS];
    CGRect              subrows[ 2];
@@ -276,7 +298,7 @@ static void  drawStuff( CALayer *layer, CGContext *context)
    for( i = 0; i < N_CGContentModes; i++)
    {
       insets = UIEdgeInsetsMake( 4, 4, 4, 4);
-      drawContentMode( vg, UIEdgeInsetsInsetRect( rects[ i], insets), (CGContentMode) i);
+      drawContentMode( vg, UIEdgeInsetsInsetRect( rects[ i], insets), i);
    }
 
    //
@@ -310,22 +332,22 @@ static void  drawStuff( CALayer *layer, CGContext *context)
 }
 
 
-void   setupScene( UIWindowPlane *contentPlane)
+void   setupScene( UIView *contentView)
 {
-   UIView        *view;
+   UIView         *view;
    CGRect         frame;
    UIEdgeInsets   insets;
-   CALayer        *layer;
 
-   frame  = [contentPlane frame];
+   assert( contentView);
 
+   frame  = [contentView contentRect];
    insets = UIEdgeInsetsMake( 8, 8, 8, 8);
    frame  = UIEdgeInsetsInsetRect( frame, insets);
 
-   view  = [UIView viewWithFrame:frame];
-   layer = [view layer];
-   [layer setDrawCallback:drawStuff];
-   [contentPlane addSubview:view];
+   view   = [UIView viewWithFrame:frame];
+   [view setDebugNameUTF8String:"me"];
+   [view setDrawCallback:drawStuff];
+   [contentView addSubview:view];
 }
 
 
@@ -340,12 +362,11 @@ int   main()
    @autoreleasepool
    {
       window = [UIWindow windowWithFrame:CGRectMake( 0.0, 0.0, 800.0, 600.0)];
+      [window setBackgroundColor:CGColorMakeWhite()];
 
       [app addWindow:window];
 
-      [window setBackgroundColor:CGColorMakeWithRGBA( 1.0, 1.0, 1.0, 1.0)];
-
-      setupScene( [window contentPlane]);
+      setupScene( [window contentView]);
    }
    return( [app run]);
 }

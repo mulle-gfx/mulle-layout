@@ -49,10 +49,10 @@ CGSize  CGSizeAspectFitToSize( CGSize size, CGSize containerSize)
 {
    CGFloat  aspectScale;
 
-   if( size.height == 0.0 || size.width == 0.0  || containerSize.height == 0.0)
+   if( CGFloatIsZero( size.height) || CGFloatIsZero( size.width) || CGFloatIsZero( containerSize.height))
       return( CGSizeZero);
 
-   aspectScale = CGSizeGetAspectFitFactor(containerSize, size);
+   aspectScale = CGSizeGetAspectFitFactor( containerSize, size);
 
    return( CGSizeMake( size.width * aspectScale, size.height * aspectScale));
 }
@@ -62,7 +62,7 @@ CGSize  CGSizeAspectFillToSize( CGSize size, CGSize containerSize)
 {
    CGFloat  aspectScale;
 
-   if( size.height == 0.0 || size.width == 0.0  || containerSize.height == 0.0)
+   if( CGFloatIsZero( size.height) || CGFloatIsZero( size.width) || CGFloatIsZero( containerSize.height))
       return( CGSizeZero);
 
    aspectScale = CGSizeGetAspectFillFactor( containerSize, size);
@@ -72,151 +72,175 @@ CGSize  CGSizeAspectFillToSize( CGSize size, CGSize containerSize)
 
 
 
-CGRect  CGSizePlaceInRectWithAspectCorrection( CGSize size,
-                                               CGRect rect,
-                                               int fill)
+CGRect  CGSizePlaceInRectWithAspectCorrection( CGSize size, CGRect r, int fill)
 {
    CGFloat  aspectScale;
    CGRect   result;
 
-   if( size.height == 0.0 || size.width == 0.0  || rect.size.height == 0.0)
+   if( CGFloatIsZero( size.height) || CGFloatIsZero( size.width) || CGFloatIsZero( r.size.width))
       return( CGRectZero);
 
    if( fill)
-      aspectScale = CGSizeGetAspectFillFactor( rect.size, size);
+      aspectScale = CGSizeGetAspectFillFactor( r.size, size);
    else
-      aspectScale = CGSizeGetAspectFitFactor( rect.size, size);
+      aspectScale = CGSizeGetAspectFitFactor( r.size, size);
 
    result.size.width  = size.width * aspectScale;
    result.size.height = size.height * aspectScale;
    // now center
-   result.origin.x = CGRectGetMidX( rect) - result.size.width / 2.0;
-   result.origin.y = CGRectGetMidY( rect) - result.size.height / 2.0;
+   result.origin.x    = CGRectGetMidX( r) - result.size.width / 2.0;
+   result.origin.y    = CGRectGetMidY( r) - result.size.height / 2.0;
    return( result);
 }
 
 
-CGRect   CGSizePlaceInRect( CGSize size,
-                            CGRect rect,
-                            CGContentMode contentMode)
+CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode)
 {
    CGRect   result;
 
+   // default
+   result.origin = r.origin;
+   result.size   = size;
+   contentMode   = contentMode ? contentMode : CGContentModeScaleToFill;
+
+   if( contentMode & CGContentModeScaleToFillHorizontal)
+   {
+      result.size.width = r.size.width;
+      contentMode      &= ~CGContentModeScaleToFillHorizontal;
+   }
+
+   if( contentMode & CGContentModeScaleToFillVertical)
+   {
+      result.size.height = r.size.height;
+      contentMode       &= ~CGContentModeScaleToFillVertical;
+   }
+
    switch( contentMode)
    {
-   case CGContentModeScaleToFill :
-      return( rect);
+   case CGContentModeDefault :
+      return( result);
 
    case CGContentModeScaleAspectFit :
-      return( CGSizePlaceInRectWithAspectCorrection( size, rect, 0));
+      return( CGSizePlaceInRectWithAspectCorrection( result.size, r, 0));
 
    case CGContentModeScaleAspectFill :
-      return( CGSizePlaceInRectWithAspectCorrection( size, rect, 1));
+      return( CGSizePlaceInRectWithAspectCorrection( result.size, r, 1));
 
    case CGContentModeCenterPoint :
-      result.origin.x = CGRectGetMidX( rect) - size.width / 2.0;
-      result.origin.y = CGRectGetMidY( rect) - size.height / 2.0;
-      result.size     = size;
+      result.origin.x = CGRectGetMidX( r) - result.size.width / 2.0;
+      result.origin.y = CGRectGetMidY( r) - result.size.height / 2.0;
       return( result);
 
    case CGContentModeTop :
-      result.origin.x = CGRectGetMidX( rect) - size.width / 2.0;
-      result.origin.y = rect.origin.y;
-      result.size     = size;
+      result.origin.x = CGRectGetMidX( r) - result.size.width / 2.0;
+      result.origin.y = r.origin.y;
       return( result);
 
    case CGContentModeBottom :
-      result.origin.x = CGRectGetMidX( rect) - size.width / 2.0;
-      result.origin.y = CGRectGetMaxY( rect) - size.height;
-      result.size     = size;
+      result.origin.x = CGRectGetMidX( r) - result.size.width / 2.0;
+      result.origin.y = CGRectGetMaxY( r) - result.size.height;
       return( result);
 
    case CGContentModeLeft :
-      result.origin.x = rect.origin.x;
-      result.origin.y = CGRectGetMidY( rect) - size.height / 2.0;
-      result.size     = size;
+      result.origin.x = r.origin.x;
+      result.origin.y = CGRectGetMidY( r) - result.size.height / 2.0;
       return( result);
 
    case CGContentModeRight :
-      result.origin.x = CGRectGetMaxX( rect) - size.width;
-      result.origin.y = CGRectGetMidY( rect) - size.height / 2.0;
-      result.size     = size;
+      result.origin.x = CGRectGetMaxX( r) - result.size.width;
+      result.origin.y = CGRectGetMidY( r) - result.size.height / 2.0;
       return( result);
 
    case CGContentModeTopLeft :
-      result.origin = rect.origin;
-      result.size   = size;
+      result.origin = r.origin;
       return( result);
 
    case CGContentModeTopRight :
-      result.origin.x = CGRectGetMaxX( rect) - size.width;
-      result.origin.y = rect.origin.y;
-      result.size     = size;
+      result.origin.x = CGRectGetMaxX( r) - result.size.width;
+      result.origin.y = r.origin.y;
       return( result);
 
    case CGContentModeBottomLeft :
-      result.origin.x = rect.origin.x;
-      result.origin.y = CGRectGetMaxY( rect) - size.height;
-      result.size     = size;
+      result.origin.x = r.origin.x;
+      result.origin.y = CGRectGetMaxY( r) - result.size.height;
       return( result);
 
    case CGContentModeBottomRight :
-      result.origin.x = CGRectGetMaxX( rect) - size.width;
-      result.origin.y = CGRectGetMaxY( rect) - size.height;
-      result.size     = size;
+      result.origin.x = CGRectGetMaxX( r) - result.size.width;
+      result.origin.y = CGRectGetMaxY( r) - result.size.height;
       return( result);
    }
    abort();
 }
 
 
-char  *CGContentModeNames[] =
+static char  *CGContentModeNames16[ 16] =
 {
-   "ScaleToFill",
-   "ScaleAspectFit",
-   "ScaleAspectFill",
-//   "CGContentModeRedraw",
+   "Default",
 
-   "Top",
-   "TopRight",
-   "Right",
-   "BottomRight",
+   "Top",      // 1
    "Bottom",
-   "BottomLeft",
-   "Left",
+   "???",
+   "Left",     // 4
    "TopLeft",
-
-   "Center"
+   "BottomLeft",
+   "???",
+   "Right",    // 8
+   "TopRight",
+   "BottomRight",
+   "???",
+   "???",
+   "???",
+   "???",
+   "Center"    // 15
 };
 
 
 char  *CGContentModeUTF8String( CGContentMode mode)
 {
-   assert( mode >= CGContentModeScaleToFill && mode <= CGContentModeCenterPoint);
-   return( CGContentModeNames[ mode]);
+   if( mode < 16)
+      return( CGContentModeNames16[ mode]);
+
+   switch( mode & 0xF0)
+   {
+   case CGContentModeScaleToFillHorizontal :
+      return( mode != CGContentModeScaleToFillHorizontal
+              ? "ScaleToFillHorizontal+"
+              : "ScaleToFillHorizontal");
+
+   case CGContentModeScaleToFillVertical   :
+      return( mode != CGContentModeScaleToFillVertical
+              ? "ScaleToFillVertical+"
+              : "ScaleToFillVertical");
+   case CGContentModeScaleToFill           : return( "ScaleToFill");
+   case CGContentModeScaleAspectFill       : return( "ScaleAspectFill");
+   case CGContentModeScaleAspectFit        : return( "ScaleAspectFit");
+   }
+
+   return( "???");
 }
 
 
-CGContentMode  CGContentModeParseCString( char *s)
-{
-   char   **sentinel;
-   char   **p;
-   char   *prefix;
-
-   prefix = strstr( s, "ContentMode");
-   if( prefix)
-   {
-      s = &s[ prefix - s];
-      s = &s[ strlen( "ContentMode")];
-   }
-
-   p        = CGContentModeNames;
-   sentinel = &p[ N_CGContentModes];
-   while( p < sentinel)
-   {
-      if( ! strcmp( s, *p))
-         return( (int) (p - CGContentModeNames));
-      ++p;
-   }
-   return( -1);
-}
+// CGContentMode  CGContentModeParseCString( char *s)
+// {
+//    char   **sentinel;
+//    char   **p;
+//    char   *prefix;
+//
+//    prefix = strstr( s, "ContentMode");
+//    if( prefix)
+//    {
+//       s = &s[ prefix - s];
+//       s = &s[ strlen( "ContentMode")];
+//    }
+//
+//    p        = CGContentModeNames;
+//    sentinel = &p[ S_CGContentModes];
+//    while( p < sentinel)
+//    {
+//       if( ! strcmp( s, *p))
+//          return( (int) (p - CGContentModeNames));
+//       ++p;
+//    }
+//    return( -1);
+// }

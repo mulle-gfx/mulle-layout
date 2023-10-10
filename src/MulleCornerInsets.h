@@ -9,29 +9,49 @@
 
 typedef struct MulleCornerInsets
 {
-   float   tl;
-   float   tr;
-   float   br;
-   float   bl;
+   float   topLeft;
+   float   topRight;
+   float   bottomRight;
+   float   bottomLeft;
 } MulleCornerInsets;
 
 #define MulleCornerInsetsData( tl, tr, br, bl)  { (tl), (tr), (br), (bl) }
 
-#define MulleCornerInsetsZero   MulleEdgeInsetsMake( 0.0f, 0.0f, 0.0f, 0.0f)
-
+#define MulleCornerInsetsZero  \
+   ((struct MulleCornerInsets) {  0.0f, 0.0f, 0.0f, 0.0f })
 
 
 static inline struct MulleCornerInsets
-   MulleCornerInsetsMakeLRTD( float topLeft, float topRight, float bottomLeft, float bottomRight)
+   MulleCornerInsetsMakeTLRBLR( float topLeft, float topRight, float bottomLeft, float bottomRight)
 {
-   return( (struct MulleCornerInsets) { .tl = topLeft, .tr = topRight, .br = bottomRight, .bl = bottomLeft });
+   return( (struct MulleCornerInsets) { .topLeft     = topLeft, 
+                                        .topRight    = topRight, 
+                                        .bottomRight = bottomRight, 
+                                        .bottomLeft  = bottomLeft 
+                                      });
+}
+
+
+// order as in nanovg nvgRoundedRectVarying
+static inline struct MulleCornerInsets
+   MulleCornerInsetsMake( float topLeft, float topRight, float bottomRight, float bottomLeft)
+{
+   return( (struct MulleCornerInsets) { .topLeft     = topLeft, 
+                                        .topRight    = topRight, 
+                                        .bottomRight = bottomRight, 
+                                        .bottomLeft  = bottomLeft 
+                                      });
 }
 
 
 static inline struct MulleCornerInsets
-   MulleCornerInsetsMake( float topLeft, float topRight, float bottomRight, float bottomLeft)
+   MulleCornerInsetsMakeWithCornerRadius( float r)
 {
-   return( (struct MulleCornerInsets) { .tl = topLeft, .tr = topRight, .br = bottomRight, .bl = bottomLeft });
+   return( (struct MulleCornerInsets) { .topLeft     = r, 
+                                        .topRight    = r, 
+                                        .bottomRight = r, 
+                                        .bottomLeft  = r
+                                      });
 }
 
 

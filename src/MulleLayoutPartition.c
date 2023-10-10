@@ -93,7 +93,7 @@ void   CGRectPartitionHorizontally( CGRect frame,
 }
 
 
-unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4])
+unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
 {
    unsigned int   i;
    CGFloat        left_margin;
@@ -101,6 +101,7 @@ unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 
    CGFloat        top_margin;
    CGFloat        bottom_margin;
    CGFloat        extent;
+   CGFloat        width;
 
    // isn't this overkill ?
    rect  = CGRectStandardize( rect);
@@ -126,54 +127,72 @@ unsigned int   CGRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 
 
    i = 0;
 
-   if ( ! CGRectIntersectsRect( rect, other))
-      return (0);
+   extent = CGRectGetHeight( rect);
+   width  = CGRectGetWidth( rect);
 
-   top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
-   bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
-   left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
-   right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
-
-   extent = CGRectGetHeight(rect);
-
-   if( top_margin > 0.0)
+   if( width > 0.0f && extent > 0.0f && CGRectIntersectsRect( rect, other))
    {
-      output[ i++] = CGRectMake( CGRectGetMinX( rect),
-                                 CGRectGetMinY( rect),
-                                 CGRectGetWidth( rect),
-                                 top_margin);
-      extent -= top_margin;
-   }
-   else
-      top_margin = 0.0;
+      top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
+      bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
 
-   if( bottom_margin > 0.0)
-   {
-      output[i++] = CGRectMake(CGRectGetMinX(rect),
-                               CGRectGetMaxY(rect) - bottom_margin,
-                               CGRectGetWidth(rect),
-                               bottom_margin);
-      extent -= bottom_margin;
-   }
+      left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
+      right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
 
-
-   if( extent > 0.0)
-   {
-      if( left_margin > 0.0)
+      //
+      //    000000000  rect
+      //    111111111
+      //    111111111  other
+      //
+      if( top_margin > 0.0)
       {
-         output[i++] = CGRectMake(CGRectGetMinX(rect),
-                                  CGRectGetMinY (rect) + top_margin,
-                                  left_margin,
-                                  extent);
+         if( width > 0.0)
+         {
+            output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                       CGRectGetMinY( rect),
+                                       width,
+                                       top_margin);
+         }
+         extent -= top_margin;
+      }
+      else
+         top_margin = 0.0;
+
+      if( bottom_margin > 0.0)
+      {
+         if( width > 0.0)
+         {
+            output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                       CGRectGetMaxY( rect) - bottom_margin,
+                                       width,
+                                       bottom_margin);
+         }
+         extent -= bottom_margin;
       }
 
-      if( right_margin > 0.0)
+      if( extent > 0.0)
       {
-         output[i++] = CGRectMake(CGRectGetMaxX(rect) - right_margin,
-                                  CGRectGetMinY(rect) + top_margin,
-                                  right_margin,
-                                  extent);
+         if( left_margin > 0.0)
+         {
+            output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                       CGRectGetMinY( rect) + top_margin,
+                                       left_margin,
+                                       extent);
+         }
+
+         if( right_margin > 0.0)
+         {
+            output[ i++] = CGRectMake( CGRectGetMaxX( rect) - right_margin,
+                                       CGRectGetMinY( rect) + top_margin,
+                                       right_margin,
+                                       extent);
+         }
       }
+   }
+
+   if( ! i)
+   {
+      output[ i++] = rect;
+      return( i);
    }
 
    return( i);
@@ -210,8 +229,7 @@ void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
 
 
 /**
- @Status Interoperable
-*/
+ */
 void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge) 
 {
     if( ! slice || ! remainder)

@@ -205,7 +205,7 @@ enum MulleLayoutVerticalPlacement
    MulleLayoutPlacementDown          = 2,    // aligns top of rect with other bottom
    MulleLayoutPlacementMiddle        = 3,    // aligns middle (H) of rect with other middle
    MulleLayoutPlacementTopAligned    = 4,    // aligns top of rect with other top
-   MulleLayoutPlacementBottomAligned = 5     // aligns bottom of rect with other top
+   MulleLayoutPlacementBottomAligned = 5     // aligns bottom of rect with other bottom
 };
 
 typedef uintptr_t    MulleLayoutVerticalPlacement;
@@ -259,11 +259,10 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
 // Gives a list of MulleLayoutPlacement and they are tried until something
 // fits.
 //
-CGPoint   CGRectPlaceNextToRectInSpace( CGRect rect,
-                                        CGRect other,
-                                        CGRect space,
-                                        uintptr_t n_preferences,
-                                        unsigned char *preferences,
-                                        intptr_t fallback);
+int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
+                                               CGRect other,
+                                               CGRect space,
+                                               MulleLayoutPlacement *preferences,
+                                               unsigned int n_preferences);
 
 #endif

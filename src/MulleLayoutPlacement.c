@@ -70,7 +70,7 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
       break;
 
    case MulleLayoutPlacementBottomAligned :
-      origin.y =  CGRectGetMaxY( other) - rect.size.height;
+      origin.y = CGRectGetMaxY( other) - rect.size.height;
       break;
    }
 
@@ -83,21 +83,17 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
 // Gives a list of MulleLayoutPlacement and they are tried until something
 // fits.
 //
-CGPoint   CGRectPlaceNextToRectInSpace( CGRect rect,
-                                        CGRect other,
-                                        CGRect space,
-                                        uintptr_t n_preferences,
-                                        unsigned char *preferences,
-                                        intptr_t fallback)
+int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
+                                               CGRect other,
+                                               CGRect space,
+                                               MulleLayoutPlacement *preferences,
+                                               unsigned int n_preferences)
 
 {
-   unsigned char   *p;
-   unsigned char   *sentinel;
-   CGRect          placed;
-
-   assert( n_preferences);
-   assert( fallback < 0 || fallback < n_preferences);
-
+   MulleLayoutPlacement   *p;
+   MulleLayoutPlacement   *sentinel;
+   CGRect                 placed;
+ 
    p        = preferences;
    sentinel = &p[ n_preferences];
 
@@ -106,11 +102,9 @@ CGPoint   CGRectPlaceNextToRectInSpace( CGRect rect,
    {
       placed.origin = CGRectPlaceNextToRect( rect, other, *p);
       if( CGRectContainsRect( space, placed))
-         return( placed.origin);
+         return( p - preferences);
       ++p;
    }
-   if( fallback >= 0)
-      return( CGRectPlaceNextToRect( rect, other, preferences[ fallback]));
 
-   return( CGPointMake( CGFLOAT_MIN, CGFLOAT_MIN));
+   return( -1);
 }

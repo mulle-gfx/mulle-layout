@@ -274,4 +274,15 @@ static inline CGRect  CGRectExtrudeUsingEdgeInsets( CGRect rect, MulleEdgeInsets
 }
 
 
+
+
+static inline MulleEdgeInsets   CGRectEdgeInsetsInRect( CGRect rect, CGRect outer)
+{
+   return( MulleEdgeInsetsMakeTLBR( CGRectGetMinY( rect) - CGRectGetMinY( outer),
+                                    CGRectGetMinX( rect) - CGRectGetMinX( outer),
+                                    CGRectGetMaxY( outer) - CGRectGetMaxY( rect),
+                                    CGRectGetMaxX( outer) - CGRectGetMaxX( rect)));
+}
+
+
 #endif

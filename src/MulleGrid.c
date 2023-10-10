@@ -24,7 +24,7 @@ void   MulleGridComputeRowsColumns( struct MulleGrid *p)
 {
    CGRect   rect;
 
-   if( ! p || p->itemSize.width == 0.0 || p->itemSize.height == 0.0)
+   if( ! p || p->itemSize.width < 0.5 || p->itemSize.height < 0.5)
       return;
 
    rect       = MulleEdgeInsetsInsetRect( p->canvasInsets, p->canvas);
