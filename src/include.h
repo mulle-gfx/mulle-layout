@@ -24,8 +24,16 @@
    sourcetree, then you don't need it.
  */
 #include "_mulle-layout-include.h"
-#ifndef MULLE__LAYOUT_EXTERN_GLOBAL
-# define MULLE__LAYOUT_EXTERN_GLOBAL MULLE_C_EXTERN_GLOBAL
+
+
+#ifdef MULLE__LAYOUT_BUILD
+# define MULLE__LAYOUT_GLOBAL    MULLE_C_GLOBAL
+#else
+# if defined( MULLE_LAYOUT_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_LAYOUT_INCLUDE_STATIC))
+#  define MULLE__LAYOUT_GLOBAL   MULLE_C_EXTERN_GLOBAL
+# else
+#  define MULLE__LAYOUT_GLOBAL   extern
+# endif
 #endif
 
 

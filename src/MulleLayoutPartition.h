@@ -24,7 +24,7 @@
 //       '----------------------------------------------------'
 //                                                       frame.size
 
-MULLE__GEOMETRY_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 void   CGRectPartitionHorizontally( CGRect frame,
                                     CGFloat space,
                                     uintptr_t n,
@@ -53,7 +53,7 @@ static inline void   CGRectPartitionH( CGRect frame,
 //
 // as above but vertically
 //
-MULLE__GEOMETRY_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 void   CGRectPartitionVertically( CGRect frame,
                                   CGFloat space,
                                   uintptr_t n,
@@ -79,32 +79,38 @@ static inline void   CGRectPartitionV( CGRect frame,
 }
 
 
-// The original
 //
-// and assume other is smack dab in the middle of rect
+// Assume other is smack dab in the middle of rect
 //
 //    000000000
 //    111   222
 //    333333333
 //
-// assume other is overlapping middle and part of the bottom
+// Assume other is overlapping middle and part of the bottom
 //
 //    000000000
 //    111   222
 //    111   222
 //
-// assume other is overlapping middle and part of the bottom
+// Assume other is overlapping middle and part of the bottom
 //
 //    000000000
 //    111
 //    111
 //
 // returns the number of rects created. If there is no overlap, you get
-// the original rect back.
+// the original rect back in output[ 0] and i == 1
+// You will always get i >= 1 back.
 //
-MULLE__GEOMETRY_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4]);
 
+
+// like CGRectSubdivid, but returns 0 if other completely overlaps rect, and
+// -1 if rect and other do not overlap
+//
+MULLE__LAYOUT_GLOBAL
+int   CGRectSubdivideIfOverlap( CGRect rect, CGRect other, CGRect output[ 4]);
 
 enum
 {
@@ -144,7 +150,7 @@ typedef uintptr_t   CGRectEdge;
  *    x-----------------------------x
  *   0,height-amount)               (width,height-amount)
  */
-MULLE__GEOMETRY_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 void   CGRectDivide( CGRect rect,
                      CGRect* slice, 
                      CGRect* remainder, 
@@ -174,7 +180,7 @@ static inline CGRect   *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
 // partition two dimensionally like 2x2 4x3 and so on
 // rects must have enough space for verticalCount * horizontalCount
 // CGRects
-MULLE__GEOMETRY_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
                                           CGSize space,
                                           unsigned int rowSize,  

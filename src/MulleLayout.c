@@ -123,6 +123,47 @@ CGRect   _MulleLayoutAddRowWithHeight( struct MulleLayout *p,
    return( rect);
 }
 
+// TODO: would be nice to have but haven't used it anywhere
+#if 0
+CGRect   _MulleLayoutGetRowContentRect( struct MulleLayout *p)
+{
+   CGRect   rect;
+
+   rect.origin = MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin);
+   rect.size   = CGSizeZero;
+
+   if( p->rect.size.width != 0.0)
+   {
+      // if only one row
+      if( p->originalRect.origin.y == p->rect.origin.y)
+      {
+         rect.size = p->rect.size;
+      }
+      else
+      {
+         rect.size.width  = (CGRectGetMaxX( p->originalRect) - p->originalMargins.right);
+         rect.size.height = CGRectGetMaxY( p->rect);
+      }
+   }
+
+   if( p->reverse)
+      rect = CGRectMirrorInRectH( rect, p->originalRect);
+   return( rect);
+}
+#endif
+
+
+CGRect   _MulleLayoutGetRowContentRect( struct MulleLayout *p)
+{
+   CGRect   rect;
+
+   rect = p->rect;
+    if( p->reverse)
+      rect = CGRectMirrorInRectH( rect, p->originalRect);
+   return( rect);
+}
+
+
 
 CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
 {
@@ -130,8 +171,8 @@ CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
 
    if( p->rect.size.width != 0.0)
    {
-      rect.origin.x = CGRectGetMaxX( p->rect) + p->margins.left;
-      rect.origin.y = p->originalRect.origin.y + p->originalMargins.top;
+      rect.origin.x    = CGRectGetMaxX( p->rect) + p->margins.left;
+      rect.origin.y    = p->originalRect.origin.y + p->originalMargins.top;
       rect.size.width  = (CGRectGetMaxX( p->originalRect) - p->originalMargins.right) - (CGRectGetMaxX( p->rect) + p->margins.left);
       rect.size.height = (CGRectGetMaxY( p->originalRect) - p->originalMargins.bottom) - (CGRectGetMinY( p->originalRect) + p->originalMargins.top);
    }
@@ -140,6 +181,13 @@ CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
       rect.origin = MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin);
       rect.size   = MulleEdgeInsetsInsetSize( p->originalMargins, p->originalRect.size);
    }
+
+   // this can happen when we have leftover margins and the rect is exhausted
+   // (also if edgeInsets are degenerate)
+   if( rect.size.width < 0.0)
+      rect.size.width = 0.0;
+   if( rect.size.height < 0.0)
+      rect.size.height = 0.0;
 
    if( p->reverse)
       rect = CGRectMirrorInRectH( rect, p->originalRect);

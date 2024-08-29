@@ -57,7 +57,8 @@ enum CGContentMode
 typedef uintptr_t    CGContentMode;
 
 
-char           *CGContentModeUTF8String( CGContentMode mode);
+MULLE__LAYOUT_GLOBAL
+char   *CGContentModeUTF8String( CGContentMode mode);
 //CGContentMode  CGContentModeParseCString( char *s);
 
 
@@ -71,18 +72,26 @@ static inline void   CGContentModeAssert( CGContentMode mode)
 {
    assert( mode == 0xF || (mode & (CGContentModeRight|CGContentModeLeft)) != (CGContentModeRight|CGContentModeLeft));
    assert( mode == 0xF || (mode & (CGContentModeTop|CGContentModeBottom)) != (CGContentModeTop|CGContentModeBottom));
-   assert( ! (mode & 0xF0) || ! (mode & 0xF));
+   assert( ! (mode & 0xC0) || ! (mode & 0xF));
 }
 
 
+MULLE__LAYOUT_GLOBAL
 CGFloat   CGSizeGetAspectFitFactor( CGSize dstSize, CGSize srcSize);
+
+MULLE__LAYOUT_GLOBAL
 CGFloat   CGSizeGetAspectFillFactor( CGSize dstSize, CGSize srcSize);
 
+MULLE__LAYOUT_GLOBAL
 CGSize  CGSizeAspectFitToSize( CGSize size, CGSize containerSize);
+
+MULLE__LAYOUT_GLOBAL
 CGSize  CGSizeAspectFillToSize( CGSize size, CGSize containerSize);
 
 
+MULLE__LAYOUT_GLOBAL
 CGRect    CGSizePlaceInRectWithAspectCorrection( CGSize size, CGRect rect, int fill);
+
 
 static inline CGRect  CGSizePlaceInRectWithAspectFit( CGSize size, CGRect rect)
 {
@@ -101,9 +110,11 @@ static inline CGRect  CGSizePlaceInRectWithAspectFill( CGSize size, CGRect rect)
 // given frame using contentMode. If the size is larger than the frame
 // it may overlap (or shrink)
 //
-MULLE__LAYOUT_EXTERN_GLOBAL
+MULLE__LAYOUT_GLOBAL
 CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode);
 
+
+// place r1 in r2, preserve x or y if just filling in one dimension
 static inline
 CGRect   CGRectPlaceInRect( CGRect r1, CGRect r2, CGContentMode contentMode)
 {
@@ -113,16 +124,15 @@ CGRect   CGRectPlaceInRect( CGRect r1, CGRect r2, CGContentMode contentMode)
    switch( contentMode)
    {
    case CGContentModeScaleToFillHorizontal :
-      result.origin.y  = r2.origin.y;
+      result.origin.y  = r1.origin.y;
       break;
 
    case CGContentModeScaleToFillVertical :
-      result.origin.x  = r2.origin.x;
+      result.origin.x  = r1.origin.x;
       break;
    }
    return( result);
 }
-
 
 
 static inline CGPoint   CGSizeGetCenterPointInRect( CGSize size, CGRect rect)

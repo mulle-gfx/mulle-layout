@@ -93,9 +93,10 @@ void   CGRectPartitionHorizontally( CGRect frame,
 }
 
 
-unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
+
+int   CGRectSubdivideIfOverlap( CGRect rect, CGRect other, CGRect output[ 4])
 {
-   unsigned int   i;
+   int            i;
    CGFloat        left_margin;
    CGFloat        right_margin;
    CGFloat        top_margin;
@@ -130,8 +131,11 @@ unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
    extent = CGRectGetHeight( rect);
    width  = CGRectGetWidth( rect);
 
-   if( width > 0.0f && extent > 0.0f && CGRectIntersectsRect( rect, other))
+   if( width > 0.0f && extent > 0.0f)
    {
+      if( ! CGRectIntersectsRect( rect, other))
+         return( -1);
+
       top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
       bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
 
@@ -189,12 +193,21 @@ unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
       }
    }
 
-   if( ! i)
-   {
-      output[ i++] = rect;
-      return( i);
-   }
+   return( i);
+}
 
+
+
+unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
+{
+   int   i;
+
+   i = CGRectSubdivideIfOverlap( rect, other, output);
+   if( i <= 0)
+   {
+      output[ 0] = rect;
+      return( 1);
+   }
    return( i);
 }
 

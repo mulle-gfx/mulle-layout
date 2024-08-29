@@ -224,7 +224,7 @@ typedef uintptr_t    MulleLayoutHorizontalPlacement;
 
 
 // for static init
-#define _MulleLayoutPlacementMake( h, v)   (((h) << 4) | (v))
+#define MulleLayoutPlacementData( h, v)   (((h) << 4) | (v))
 
 
 static inline  MulleLayoutPlacement
@@ -250,6 +250,7 @@ static inline MulleLayoutHorizontalPlacement
 
 
 
+MULLE__LAYOUT_GLOBAL
 CGPoint   CGRectPlaceNextToRect( CGRect rect,
                                  CGRect other,
                                  MulleLayoutPlacement placement);
@@ -259,10 +260,18 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
 // Gives a list of MulleLayoutPlacement and they are tried until something
 // fits.
 //
+MULLE__LAYOUT_GLOBAL
 int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
                                                CGRect other,
                                                CGRect space,
                                                MulleLayoutPlacement *preferences,
                                                unsigned int n_preferences);
+
+MULLE__LAYOUT_GLOBAL
+CGPoint  CGRectPlaceNextToRectInSpace( CGRect rect,
+                                       CGRect other,
+                                       CGRect space,
+                                       MulleLayoutPlacement *preferences,
+                                       unsigned int n_preferences);
 
 #endif

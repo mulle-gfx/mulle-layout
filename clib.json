@@ -1,7 +1,7 @@
 {
    "name" : "mulle-layout",
    "version" : "0.0.2",
-   "description" : "Rectangle geometry and manual layouting",
+   "description" : "📏 Rectangle geometry and manual layouting",
    "keywords" : [],
    "license" : "UNLICENSED",
    "repo" : "MulleUI/mulle-layout",

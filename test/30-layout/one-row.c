@@ -6,7 +6,7 @@
 static void   test( CGRect layoutRect,
                     struct MulleEdgeInsets layoutInsets,
                     CGSize size,
-                    struct  MulleEdgeInsets insets)
+                    struct MulleEdgeInsets insets)
 {
    struct MulleLayout  layout;
    CGRect              part;

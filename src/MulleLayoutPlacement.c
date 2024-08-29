@@ -108,3 +108,31 @@ int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
 
    return( -1);
 }
+
+
+
+CGPoint  CGRectPlaceNextToRectInSpace( CGRect rect,
+                                       CGRect other,
+                                       CGRect space,
+                                       MulleLayoutPlacement *preferences,
+                                       unsigned int n_preferences)
+
+{
+   MulleLayoutPlacement   *p;
+   MulleLayoutPlacement   *sentinel;
+   CGRect                 placed;
+
+   p        = preferences;
+   sentinel = &p[ n_preferences];
+
+   placed.size = rect.size;
+   while( p < sentinel)
+   {
+      placed.origin = CGRectPlaceNextToRect( rect, other, *p);
+      if( CGRectContainsRect( space, placed))
+         return( placed.origin);
+      ++p;
+   }
+
+   return( CGPointNull);
+}

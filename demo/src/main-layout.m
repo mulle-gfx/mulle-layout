@@ -139,13 +139,13 @@ void   drawRectPlacement( NVGcontext *vg,
 }
 
 
-static unsigned char   preferences[] =
+static MulleLayoutPlacement   preferences[] =
 {
-   MulleLayoutPlacementLeftAligned << 4  | MulleLayoutPlacementDown,
-   MulleLayoutPlacementRightAligned << 4 | MulleLayoutPlacementUp,
-   MulleLayoutPlacementRightAligned << 4 | MulleLayoutPlacementDown,
-   MulleLayoutPlacementLeftAligned << 4  | MulleLayoutPlacementUp,
-   MulleLayoutPlacementCenter << 4       | MulleLayoutPlacementMiddle
+   MulleLayoutPlacementData( MulleLayoutPlacementLeftAligned,  MulleLayoutPlacementDown),
+   MulleLayoutPlacementData( MulleLayoutPlacementRightAligned, MulleLayoutPlacementUp),
+   MulleLayoutPlacementData( MulleLayoutPlacementRightAligned, MulleLayoutPlacementDown),
+   MulleLayoutPlacementData( MulleLayoutPlacementLeftAligned,  MulleLayoutPlacementUp),
+   MulleLayoutPlacementData( MulleLayoutPlacementCenter,       MulleLayoutPlacementMiddle)
 };
 
 //
@@ -195,11 +195,11 @@ void   drawRectSpacePlacement( NVGcontext *vg,
                              : rect.size.height * 2.0 / 3.0;
 
    otherRect.origin = CGRectPlaceNextToRectInSpace( otherRect,
-                                                       smallRect,
-                                                       rect,
-                                                       (sizeof( preferences) / sizeof( preferences[ 0])),
-                                                       preferences,
-                                                       (sizeof( preferences) / sizeof( preferences[ 0])) - 1);
+                                                    smallRect,
+                                                    rect,
+                                                    preferences,
+                                                    sizeof( preferences) / sizeof( preferences[ 0]));
+   assert( ! CGPointIsNull( otherRect.origin));
 
    nvgBeginPath( vg);
    {
@@ -274,7 +274,7 @@ static void   drawLayoutInSpace( NVGcontext *vg, CGRect rect)
 #define N_ROWS 4
 
 
-static void  drawStuff( CALayer *layer, CGContext *context)
+static BOOL  drawStuff( CGGraphicsLayer *layer, CGContext *context)
 {
    struct NVGcontext   *vg;
    CGRect              rows[ N_ROWS];
@@ -329,6 +329,7 @@ static void  drawStuff( CALayer *layer, CGContext *context)
    // test layout struct
    //
    drawLayoutInSpace( vg, UIEdgeInsetsInsetRect( rows[ 3], insets));
+   return( YES);
 }
 
 
@@ -364,11 +365,11 @@ int   main()
       window = [UIWindow windowWithFrame:CGRectMake( 0.0, 0.0, 800.0, 600.0)];
       [window setBackgroundColor:CGColorMakeWhite()];
 
-      [app addWindow:window];
-
       setupScene( [window contentView]);
+
+      [app addWindow:window];
    }
-   return( [app run]);
+   return( [app runApp]);
 }
 
 

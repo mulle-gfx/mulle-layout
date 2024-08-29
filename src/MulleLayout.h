@@ -33,7 +33,8 @@
 //
 // Basically follow the definitions set in here
 // https://yogalayout.com/
-// except we don't do padding (which is insets used by UIView for the content)
+// except we don't do padding (which is insets used by UIView for the content).
+//
 // The margin handling is different, in that we merge margins.
 // i.e. ---| |----   will be a distance of 20 and not of 30 like in Yoga
 //       10   20
@@ -55,7 +56,7 @@ struct MulleLayout
 
 
 //
-// Inital margins are inside the rect!
+// Initial margins are inside the rect!
 //
 //         rect
 // +-------------------+
@@ -135,33 +136,7 @@ static inline void   MulleLayoutDone( struct MulleLayout *p)
 }
 
 
-//
-// +++.......
-// + +   ++ .
-// +++   ++ .
-// .........+
-//
-// ###
-// # #
-// ###
-//
-static inline CGPoint   MulleLayoutGetRowContentOrigin( struct MulleLayout *p)
-{
-   if( ! p)
-      return( CGPointZero);
-   return( MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin));
-}
-
-
-static inline CGSize   MulleLayoutGetRowContentSize( struct MulleLayout *p)
-{
-   if( ! p)
-      return( CGSizeZero);
-   return( MulleEdgeInsetsInsetSize( p->originalMargins, p->originalRect.size));
-}
-
-
-static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
+static inline CGRect   MulleLayoutGetContentRect( struct MulleLayout *p)
 {
    if( ! p)
       return( CGRectZero);
@@ -169,16 +144,56 @@ static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
 }
 
 
+//
+// Two rects have been placed into a row. The "envelope" is the rowContent
+//
+//     c = rowContentRect
+// +++------|.....
+// +1+   +++|    .
+// +++ c +2+|    .
+// ------+++|    .
+// ,        .    .
+// ...............
+//
+CGRect   _MulleLayoutGetRowContentRect( struct MulleLayout *p);
+
+
+static inline CGPoint   MulleLayoutGetRowContentOrigin( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGPointZero);
+   return( _MulleLayoutGetRowContentRect( p).origin);
+}
+
+
+static inline CGSize   MulleLayoutGetRowContentSize( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGSizeZero);
+   return( _MulleLayoutGetRowContentRect( p).size);
+}
+
+
+static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
+{
+   if( ! p)
+      return( CGRectZero);
+   return( _MulleLayoutGetRowContentRect( p));
+}
+
+
 
 //
-// +++.......
-// + +   ++ .
-// +++   ++ .
-// .........+
+// Two rects have been placed into a row. The remaining vertical and horizontal
+// space is the remainingRowContentRect
 //
-// ###
-// # #
-// ###
+//            r = remainingRowContentRect
+// +++......|-----
+// +1+   +++|     |
+// +++   +2+|     |
+// .     +++| r   |
+// .        |     |
+// .........|-----
 //
 CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p);
 
@@ -261,6 +276,8 @@ static inline void   MulleLayoutNewRow( struct MulleLayout *p)
 // room enough for margins, which is also the right edge of the space. 
 // The larger margin wins.
 //
+// Returns the layouted rectangle, for a rect of size "size", which has been
+// placed into the current row, if space is available.
 // Returns CGRectNull rect, if it doesn't fit. If it doesn't fit, its
 // time for a new row. 
 //

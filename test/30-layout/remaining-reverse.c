@@ -58,6 +58,9 @@ static void   test( CGRect layoutRect,
 
 int   main( int argc, char *argv[])
 {
+   test( CGRectMake( 100, 100, 300, 200), MulleEdgeInsetsZero,
+         CGSizeMake( 300, 200), MulleEdgeInsetsZero);
+
    test( CGRectMake( 100, 100, 300, 200), MulleEdgeInsetsMake( 10, 15, 20, 25),
          CGSizeMake( 0, 0), MulleEdgeInsetsZero);
 

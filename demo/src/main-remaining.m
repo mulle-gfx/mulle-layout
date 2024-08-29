@@ -33,7 +33,7 @@ static void   drawStrokedRect( NVGcontext *vg, CGRect rect, CGColor color)
 
 
 
-static void   drawStuff( CALayer *layer, void *context, BOOL reverse, struct MulleEdgeInsets insets)
+static void   drawStuff( CGGraphicsLayer *layer, void *context, BOOL reverse, struct MulleEdgeInsets insets)
 {
    struct MulleLayout  layout;
    CGRect              container;
@@ -74,21 +74,25 @@ static void   drawStuff( CALayer *layer, void *context, BOOL reverse, struct Mul
 
 
 
-static void   drawStuff1( CALayer *layer, void *context)
+static BOOL   drawStuff1( CGGraphicsLayer *layer, CGContext *context)
 {
    drawStuff( layer, context, NO, MulleEdgeInsetsMake( 7, 14, 21, 28));
+   return( YES);
 }
-static void   drawStuff2( CALayer *layer, void *context)
+static BOOL   drawStuff2( CGGraphicsLayer *layer, CGContext *context)
 {
    drawStuff( layer, context, NO, MulleEdgeInsetsMake( 20, 32, 0, 16));
+   return( YES);
 }
-static void   drawStuff3( CALayer *layer, void *context)
+static BOOL   drawStuff3( CGGraphicsLayer *layer, CGContext *context)
 {
    drawStuff( layer, context, YES, MulleEdgeInsetsMake( 7, 14, 21, 28));
+   return( YES);
 }
-static void   drawStuff4( CALayer *layer, void *context)
+static BOOL   drawStuff4( CGGraphicsLayer *layer, CGContext *context)
 {
    drawStuff( layer, context, YES, MulleEdgeInsetsMake( 20, 32, 0, 16));
+   return( YES);
 }
 
 
@@ -149,13 +153,13 @@ int   main()
    {
       window = [UIWindow windowWithFrame:CGRectMake( 0.0, 0.0, 640.0, 400.0)];
 
-      [app addWindow:window];
-
       [window setBackgroundColor:CGColorMakeWhite()];
 
       setupScene( [window contentPlane]);
+
+      [app addWindow:window];
    }
-   return( [app run]);
+   return( [app runApp]);
 }
 
 
