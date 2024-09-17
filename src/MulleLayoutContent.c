@@ -103,28 +103,39 @@ CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode)
    result.size   = size;
    contentMode   = contentMode ? contentMode : CGContentModeScaleToFill;
 
-   if( contentMode & CGContentModeScaleToFillHorizontal)
+   //
+   // do fill first
+   //
+   switch( contentMode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill))
    {
-      result.size.width = r.size.width;
-      contentMode      &= ~CGContentModeScaleToFillHorizontal;
+   case CGContentModeScaleAspectFit :
+      // you can't mix fill with aspect, aspect overrides
+      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
+      result = CGSizePlaceInRectWithAspectCorrection( result.size, r, 0);
+      break;
+
+   case CGContentModeScaleAspectFill :
+      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
+      result = CGSizePlaceInRectWithAspectCorrection( result.size, r, 1);
+      break;
+
+   case CGContentModeScaleAspectFit|CGContentModeScaleAspectFill :
+      assert( ! (contentMode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill)));
+      break;
+
+   default :
+      if( contentMode & CGContentModeScaleToFillHorizontal)
+         result.size.width = r.size.width;
+
+      if( contentMode & CGContentModeScaleToFillVertical)
+         result.size.height = r.size.height;
+      break;
    }
 
-   if( contentMode & CGContentModeScaleToFillVertical)
-   {
-      result.size.height = r.size.height;
-      contentMode       &= ~CGContentModeScaleToFillVertical;
-   }
-
-   switch( contentMode)
+   switch( contentMode & 0xF)
    {
    case CGContentModeDefault :
       return( result);
-
-   case CGContentModeScaleAspectFit :
-      return( CGSizePlaceInRectWithAspectCorrection( result.size, r, 0));
-
-   case CGContentModeScaleAspectFill :
-      return( CGSizePlaceInRectWithAspectCorrection( result.size, r, 1));
 
    case CGContentModeCenterPoint :
       result.origin.x = CGRectGetMidX( r) - result.size.width / 2.0;
