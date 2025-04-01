@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="cc4dda19-baaf-4b20-a601-b47e65c9b050" name="build-test" defaultType="TOOL">
+      <configuration id="d0d9b986-7391-4a1e-a5c8-a3ba0e612648" name="build-test">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_mulle-sde test crun --keep-exe" />
+        </build>
+      </configuration>
+    </target>
+  </component>
+</project>

@@ -11,6 +11,7 @@ endif()
 # contents selected with patternfile ??-source--sources
 #
 set( SOURCES
+src/main-grid.m
 src/main-layout.m
 src/main-remaining.m
 )

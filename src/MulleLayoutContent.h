@@ -51,15 +51,11 @@ enum CGContentMode
    CGContentModeScaleToFillVertical      = 0x20,
    CGContentModeScaleToFill              = 0x30,  // same as CGContentModeDefault
    CGContentModeScaleAspectFill          = 0x40,
-   CGContentModeScaleAspectFit           = 0x80
+   CGContentModeScaleAspectFit           = 0x80,
+   CGContentModeScaleAspect              = 0xC0   // same as CGContentModeScaleAspectFit
 };
 
 typedef uintptr_t    CGContentMode;
-
-
-MULLE__LAYOUT_GLOBAL
-char   *CGContentModeUTF8String( CGContentMode mode);
-//CGContentMode  CGContentModeParseCString( char *s);
 
 
 static inline int   CGContentModeIsScaling( CGContentMode mode)
@@ -68,12 +64,29 @@ static inline int   CGContentModeIsScaling( CGContentMode mode)
 }
 
 
+static inline int   CGContentModeIsValid( CGContentMode mode)
+{
+   if( (mode & 0xF) != CGContentModeCenterPoint)
+   {
+      if( (mode & (CGContentModeRight|CGContentModeLeft)) == (CGContentModeRight|CGContentModeLeft))
+         return( 0);
+      if( (mode & (CGContentModeTop|CGContentModeBottom)) == (CGContentModeTop|CGContentModeBottom))
+         return( 0);
+   }
+
+   if( (mode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill)) && (mode & CGContentModeScaleToFill))
+      return( 0);
+   if( (mode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill)) == (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill))
+      return( 0);
+   return( 1);
+}
+
+
 static inline void   CGContentModeAssert( CGContentMode mode)
 {
-   assert( mode == 0xF || (mode & (CGContentModeRight|CGContentModeLeft)) != (CGContentModeRight|CGContentModeLeft));
-   assert( mode == 0xF || (mode & (CGContentModeTop|CGContentModeBottom)) != (CGContentModeTop|CGContentModeBottom));
-   assert( ! (mode & 0xC0) || ! (mode & 0xF));
+   assert( CGContentModeIsValid( mode));
 }
+
 
 
 MULLE__LAYOUT_GLOBAL
@@ -113,6 +126,10 @@ static inline CGRect  CGSizePlaceInRectWithAspectFill( CGSize size, CGRect rect)
 MULLE__LAYOUT_GLOBAL
 CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode);
 
+
+// here we only look at the lower 4 bits, a 0 means no change in 'r'
+MULLE__LAYOUT_GLOBAL
+CGRect   CGRectPositionInRect( CGRect r1, CGRect r2, CGContentMode contentMode);
 
 // place r1 in r2, preserve x or y if just filling in one dimension
 static inline

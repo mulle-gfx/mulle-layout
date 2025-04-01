@@ -94,45 +94,11 @@ CGRect  CGSizePlaceInRectWithAspectCorrection( CGSize size, CGRect r, int fill)
 }
 
 
-CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode)
+CGRect   CGRectPositionInRect( CGRect result, CGRect r, CGContentMode contentMode)
 {
-   CGRect   result;
+   assert( contentMode < 0x10);
 
-   // default
-   result.origin = r.origin;
-   result.size   = size;
-   contentMode   = contentMode ? contentMode : CGContentModeScaleToFill;
-
-   //
-   // do fill first
-   //
-   switch( contentMode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill))
-   {
-   case CGContentModeScaleAspectFit :
-      // you can't mix fill with aspect, aspect overrides
-      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
-      result = CGSizePlaceInRectWithAspectCorrection( result.size, r, 0);
-      break;
-
-   case CGContentModeScaleAspectFill :
-      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
-      result = CGSizePlaceInRectWithAspectCorrection( result.size, r, 1);
-      break;
-
-   case CGContentModeScaleAspectFit|CGContentModeScaleAspectFill :
-      assert( ! (contentMode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill)));
-      break;
-
-   default :
-      if( contentMode & CGContentModeScaleToFillHorizontal)
-         result.size.width = r.size.width;
-
-      if( contentMode & CGContentModeScaleToFillVertical)
-         result.size.height = r.size.height;
-      break;
-   }
-
-   switch( contentMode & 0xF)
+   switch( contentMode)
    {
    case CGContentModeDefault :
       return( result);
@@ -185,50 +151,38 @@ CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode)
 }
 
 
-static char  *CGContentModeNames16[ 16] =
+CGRect   CGSizePlaceInRect( CGSize size, CGRect r, CGContentMode contentMode)
 {
-   "Default",
+   CGRect   result;
 
-   "Top",      // 1
-   "Bottom",
-   "???",
-   "Left",     // 4
-   "TopLeft",
-   "BottomLeft",
-   "???",
-   "Right",    // 8
-   "TopRight",
-   "BottomRight",
-   "???",
-   "???",
-   "???",
-   "???",
-   "Center"    // 15
-};
+   // default
+   contentMode = contentMode ? contentMode : CGContentModeScaleToFill;
 
-
-char  *CGContentModeUTF8String( CGContentMode mode)
-{
-   if( mode < 16)
-      return( CGContentModeNames16[ mode]);
-
-   switch( mode & 0xF0)
+   //
+   // do fill first
+   //
+   switch( contentMode & (CGContentModeScaleAspectFit|CGContentModeScaleAspectFill))
    {
-   case CGContentModeScaleToFillHorizontal :
-      return( mode != CGContentModeScaleToFillHorizontal
-              ? "ScaleToFillHorizontal+"
-              : "ScaleToFillHorizontal");
+   case CGContentModeScaleAspectFit|CGContentModeScaleAspectFill :
+   case CGContentModeScaleAspectFit :
+      // you can't mix fill with aspect, aspect overrides
+      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
+      result = CGSizePlaceInRectWithAspectCorrection( size, r, 0);
+      break;
 
-   case CGContentModeScaleToFillVertical   :
-      return( mode != CGContentModeScaleToFillVertical
-              ? "ScaleToFillVertical+"
-              : "ScaleToFillVertical");
-   case CGContentModeScaleToFill           : return( "ScaleToFill");
-   case CGContentModeScaleAspectFill       : return( "ScaleAspectFill");
-   case CGContentModeScaleAspectFit        : return( "ScaleAspectFit");
+   case CGContentModeScaleAspectFill :
+      assert( ! (contentMode & (CGContentModeScaleToFillVertical|CGContentModeScaleToFillHorizontal)));
+      result = CGSizePlaceInRectWithAspectCorrection( size, r, 1);
+      break;
+
+   default :
+      result.origin      = r.origin;
+      result.size.width  = (contentMode & CGContentModeScaleToFillHorizontal) ?  r.size.width : size.width;
+      result.size.height = (contentMode & CGContentModeScaleToFillVertical) ?  r.size.height : size.height;
+      break;
    }
 
-   return( "???");
+   return( CGRectPositionInRect( result, r, contentMode & 0xF));
 }
 
 

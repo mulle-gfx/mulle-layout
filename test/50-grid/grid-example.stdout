@@ -1,0 +1,6 @@
+canvas    : 0, 0, 1024, 768
+insets    : 1, 2, 3, 4
+itemSize  : 118.5, 100
+rows/cols : 7, 8
+spacing   : 10, 10
+

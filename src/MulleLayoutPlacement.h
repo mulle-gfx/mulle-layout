@@ -188,8 +188,11 @@ static inline CGRect   CGRectPlaceBelowRect( CGRect rect, CGFloat spacing, CGFlo
 // '-------------'
 
 
-// uintptr_t for comapatibility with NSUInteger, which we don't have
+// uintptr_t for compatibility with NSUInteger, which we don't have
 // here yet
+//
+// TODO: rename to MulleLayoutPlacement_t ?
+//
 typedef uintptr_t    MulleLayoutPlacement;
 
 //
@@ -256,9 +259,13 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
                                  MulleLayoutPlacement placement);
 
 //
-// position rect at either side of other, if space fits.
-// Gives a list of MulleLayoutPlacement and they are tried until something
+// Position rect at either side of other, if space fits.
+// Given a list of MulleLayoutPlacement and they are tried until something
 // fits.
+//
+// If you pass NULL for preferences, it will use
+// a default scheme. If you don't want any scheme set n_preferences to 0
+// and pass something else than NULL for preferences.
 //
 MULLE__LAYOUT_GLOBAL
 int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
@@ -267,11 +274,30 @@ int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
                                                MulleLayoutPlacement *preferences,
                                                unsigned int n_preferences);
 
+// 
+// If you pass NULL for preferences, it will use
+// a default scheme. If you don't want any scheme set n_preferences to 0
+// and pass something else than NULL for preferences.
+//
 MULLE__LAYOUT_GLOBAL
 CGPoint  CGRectPlaceNextToRectInSpace( CGRect rect,
                                        CGRect other,
                                        CGRect space,
                                        MulleLayoutPlacement *preferences,
                                        unsigned int n_preferences);
+
+//
+// Something very similiar for menus really.
+// 
+// If you pass NULL for preferences, it will use
+// a default scheme. If you don't want any scheme set n_preferences to 0
+// and pass something else than NULL for preferences.
+//
+MULLE__LAYOUT_GLOBAL
+CGRect   CGSizePlaceAdjacentToRectInSpace( CGSize menuSize,
+                                           CGRect buttonFrame,
+                                           CGRect space,
+                                           MulleLayoutPlacement *preferences,
+                                           unsigned int n_preferences);
 
 #endif

@@ -98,11 +98,11 @@ static BOOL   drawStuff4( CGGraphicsLayer *layer, CGContext *context)
 
 void   setupScene( UIWindowPlane *contentPlane)
 {
-   UIView        *view;
-   CGRect         frame;
-   UIEdgeInsets   insets;
-   CALayer        *layer;
-   CGRect         rects[ 2][ 2];
+   UIView            *view;
+   CGRect            frame;
+   UIEdgeInsets      insets;
+   CGGraphicsLayer   *layer;
+   CGRect            rects[ 2][ 2];
 
    insets = UIEdgeInsetsMake( 8, 8, 8, 8);
    frame  = UIEdgeInsetsInsetRect( [contentPlane frame], insets);
@@ -114,28 +114,28 @@ void   setupScene( UIWindowPlane *contentPlane)
    frame  = UIEdgeInsetsInsetRect( rects[ 0][ 0], insets);
 
    view  = [UIView viewWithFrame:frame];
-   layer = (CALayer *) [view layer];
+   layer = MULLE_OBJC_CLASS_CAST( CGGraphicsLayer, [view layer]);
    [layer setDrawCallback:drawStuff1];
    [contentPlane addSubview:view];
 
    frame  = UIEdgeInsetsInsetRect( rects[ 0][ 1], insets);
 
    view  = [UIView viewWithFrame:frame];
-   layer = (CALayer *) [view layer];
+   layer = MULLE_OBJC_CLASS_CAST( CGGraphicsLayer, [view layer]);
    [layer setDrawCallback:drawStuff2];
    [contentPlane addSubview:view];
 
    frame  = UIEdgeInsetsInsetRect( rects[ 1][ 0], insets);
 
    view  = [UIView viewWithFrame:frame];
-   layer = (CALayer *) [view layer];
+   layer = MULLE_OBJC_CLASS_CAST( CGGraphicsLayer, [view layer]);
    [layer setDrawCallback:drawStuff3];
    [contentPlane addSubview:view];
 
    frame  = UIEdgeInsetsInsetRect( rects[ 1][ 1], insets);
 
    view  = [UIView viewWithFrame:frame];
-   layer = (CALayer *) [view layer];
+   layer = MULLE_OBJC_CLASS_CAST( CGGraphicsLayer, [view layer]);
    [layer setDrawCallback:drawStuff4];
    [contentPlane addSubview:view];
 }
@@ -155,7 +155,7 @@ int   main()
 
       [window setBackgroundColor:CGColorMakeWhite()];
 
-      setupScene( [window contentPlane]);
+      setupScene( [window contentView]);
 
       [app addWindow:window];
    }

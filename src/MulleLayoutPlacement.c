@@ -78,6 +78,59 @@ CGPoint   CGRectPlaceNextToRect( CGRect rect,
 }
 
 
+
+static MulleLayoutPlacement    menu_placement_preferences[] =
+{
+   MulleLayoutPlacementData( MulleLayoutPlacementLeftAligned,  MulleLayoutPlacementDown),
+   MulleLayoutPlacementData( MulleLayoutPlacementLeftAligned,  MulleLayoutPlacementUp),
+   MulleLayoutPlacementData( MulleLayoutPlacementRightAligned, MulleLayoutPlacementDown),
+   MulleLayoutPlacementData( MulleLayoutPlacementRightAligned, MulleLayoutPlacementUp),
+   MulleLayoutPlacementData( MulleLayoutPlacementCenter,       MulleLayoutPlacementDown),
+   MulleLayoutPlacementData( MulleLayoutPlacementCenter,       MulleLayoutPlacementUp),
+   MulleLayoutPlacementData( MulleLayoutPlacementCenter,       MulleLayoutPlacementMiddle)
+};
+#define N_MENU_PLACEMENT_PREFERENCES \
+   (sizeof( menu_placement_preferences) / sizeof( menu_placement_preferences[ 0]))
+
+
+
+
+CGPoint  CGRectPlaceNextToRectInSpace( CGRect rect,
+                                       CGRect other,
+                                       CGRect space,
+                                       MulleLayoutPlacement *preferences,
+                                       unsigned int n_preferences)
+
+{
+   MulleLayoutPlacement   *p;
+   MulleLayoutPlacement   *sentinel;
+   CGRect                 placed;
+
+ 
+   if( ! preferences)
+   {
+      preferences   = menu_placement_preferences;
+      n_preferences = N_MENU_PLACEMENT_PREFERENCES;
+   }
+
+
+   p        = preferences;
+   sentinel = &p[ n_preferences];
+
+   placed.size = rect.size;
+   while( p < sentinel)
+   {
+      placed.origin = CGRectPlaceNextToRect( rect, other, *p);
+      if( CGRectContainsRect( space, placed))
+         return( placed.origin);
+      ++p;
+   }
+
+   return( CGPointNull);
+}
+
+
+
 //
 // position rect at either side of other, if space fits.
 // Gives a list of MulleLayoutPlacement and they are tried until something
@@ -94,6 +147,12 @@ int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
    MulleLayoutPlacement   *sentinel;
    CGRect                 placed;
  
+   if( ! preferences)
+   {
+      preferences   = menu_placement_preferences;
+      n_preferences = N_MENU_PLACEMENT_PREFERENCES;
+   }
+
    p        = preferences;
    sentinel = &p[ n_preferences];
 
@@ -111,28 +170,48 @@ int  CGRectFindBestPlacementNextToRectInSpace( CGRect rect,
 
 
 
-CGPoint  CGRectPlaceNextToRectInSpace( CGRect rect,
-                                       CGRect other,
-                                       CGRect space,
-                                       MulleLayoutPlacement *preferences,
-                                       unsigned int n_preferences)
-
+CGRect   CGSizePlaceAdjacentToRectInSpace( CGSize menuSize,
+                                           CGRect buttonFrame,
+                                           CGRect space,
+                                           MulleLayoutPlacement *preferences,
+                                           unsigned int n_preferences)
 {
-   MulleLayoutPlacement   *p;
-   MulleLayoutPlacement   *sentinel;
-   CGRect                 placed;
+   CGRect                 menuFrame;
+   MulleLayoutPlacement   placement;
+   int                    index;
 
-   p        = preferences;
-   sentinel = &p[ n_preferences];
+   menuFrame.origin = CGPointZero;
+   menuFrame.size   = menuSize;
 
-   placed.size = rect.size;
-   while( p < sentinel)
+   //  0   4   8  12   16
+   //  +---------------+
+   //  | t :   o   : p |
+   //  |...+-------+...| bounds
+   //  |   | frame |   |
+   //  |...+-------+...|
+   //  |   :       :   |
+   //  +---------------+
+   if( ! preferences)
    {
-      placed.origin = CGRectPlaceNextToRect( rect, other, *p);
-      if( CGRectContainsRect( space, placed))
-         return( placed.origin);
-      ++p;
+      preferences   = menu_placement_preferences;
+      n_preferences = N_MENU_PLACEMENT_PREFERENCES;
    }
 
-   return( CGPointNull);
+   index = CGRectFindBestPlacementNextToRectInSpace( menuFrame,
+                                                     buttonFrame,
+                                                     space,
+                                                     preferences,
+                                                     n_preferences);
+   if( index == -1)
+   {
+      if( ! n_preferences)
+         return( CGRectNull);
+      placement = preferences[ n_preferences - 1];
+   }
+   else
+      placement = preferences[ index];
+
+   menuFrame.origin = CGRectPlaceNextToRect( menuFrame, buttonFrame, placement);
+
+   return( menuFrame);
 }

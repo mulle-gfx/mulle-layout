@@ -17,24 +17,28 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark m no-cmake-platform-${MULLE_UNAME}`
 # Disable for a sdk: `mulle-sourcetree mark m no-cmake-sdk-<name>`
 #
-if( NOT M_LIBRARY)
-   find_library( M_LIBRARY NAMES
-      m
-   )
-   message( STATUS "M_LIBRARY is ${M_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( M_LIBRARY)
+if( COLLECT_OS_SPECIFIC_LIBRARIES_AS_NAMES)
+   list( APPEND OS_SPECIFIC_LIBRARIES "m")
+else()
+   if( NOT M_LIBRARY)
+      find_library( M_LIBRARY NAMES
+         m
+      )
+      message( STATUS "M_LIBRARY is ${M_LIBRARY}")
       #
-      # Add M_LIBRARY to OS_SPECIFIC_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark m no-cmake-add`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      list( APPEND OS_SPECIFIC_LIBRARIES ${M_LIBRARY})
-      # intentionally left blank
-   else()
-      # Disable with: `mulle-sourcetree mark m no-require-link`
-      message( FATAL_ERROR "M_LIBRARY was not found")
+      if( M_LIBRARY)
+         #
+         # Add M_LIBRARY to OS_SPECIFIC_LIBRARIES list.
+         # Disable with: `mulle-sourcetree mark m no-cmake-add`
+         #
+         list( APPEND OS_SPECIFIC_LIBRARIES ${M_LIBRARY})
+         # intentionally left blank
+      else()
+         # Disable with: `mulle-sourcetree mark m no-require-link`
+         message( SEND_ERROR "M_LIBRARY was not found")
+      endif()
    endif()
 endif()

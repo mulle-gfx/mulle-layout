@@ -152,8 +152,8 @@ typedef uintptr_t   CGRectEdge;
  */
 MULLE__LAYOUT_GLOBAL
 void   CGRectDivide( CGRect rect,
-                     CGRect* slice, 
-                     CGRect* remainder, 
+                     CGRect *slice, 
+                     CGRect *remainder, 
                      CGFloat amount, 
                      CGRectEdge edge);
 
@@ -222,6 +222,5 @@ static inline void   CGRectPartition3x3( CGRect frame,
 {
    CGRectPartitionIntoRowsAndColumns( frame, space, 3, 3, (CGRect *) rects);
 }
-
 
 #endif

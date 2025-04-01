@@ -59,11 +59,11 @@ int   main()
          rect = rects[ j];
          for( k = 0; k < sizeof( modes) / sizeof( modes[ 0]); k++)
          {
-            printf( "CGSizePlaceInRect( { %.1f %.1f }, { %.1f %.1f %.1f %.1f }, %s) -> ", 
+            printf( "CGSizePlaceInRect( { %.1f %.1f }, { %.1f %.1f %.1f %.1f } %td) -> ",
                         size.width, size.height,
                         rect.origin.x, rect.origin.y, 
                         rect.size.width, rect.size.height,
-                        CGContentModeUTF8String( modes[ k]));
+                        modes[ k]);
             result = CGSizePlaceInRect( size, rect, modes[ k]);
             printf( "%.1f %.1f %.1f %.1f\n", 
                         result.origin.x, result.origin.y,

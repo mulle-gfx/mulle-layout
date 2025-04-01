@@ -346,7 +346,7 @@ void   setupScene( UIView *contentView)
    frame  = UIEdgeInsetsInsetRect( frame, insets);
 
    view   = [UIView viewWithFrame:frame];
-   [view setDebugNameUTF8String:"me"];
+   [view setNameUTF8String:"me"];
    [view setDrawCallback:drawStuff];
    [contentView addSubview:view];
 }

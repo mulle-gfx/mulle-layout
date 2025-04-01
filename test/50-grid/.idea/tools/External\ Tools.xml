@@ -1,0 +1,35 @@
+<toolSet name="External Tools">
+  <tool name="mulle-sde test crun --keep-exe"
+        description="Craft the main library and run test anew"
+        showInMainMenu="false"
+        showInEditor="false"
+        showInProject="false"
+        showInSearchPopup="false"
+        disabled="false"
+        useConsole="true"
+        showConsoleOnStdOut="false"
+        showConsoleOnStdErr="false"
+        synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="mulle-sde" />
+      <option name="PARAMETERS" value="test --no-clean crun --keep-exe $FileName$" />
+      <option name="WORKING_DIRECTORY" value="$FileDir$" />
+    </exec>
+  </tool>
+  <tool name="mulle-sde clean all" description="Clean everything and rebuild"
+        showInMainMenu="false"
+        showInEditor="false"
+        showInProject="false"
+        showInSearchPopup="false"
+        disabled="false"
+        useConsole="true"
+        showConsoleOnStdOut="false"
+        showConsoleOnStdErr="false"
+        synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="mulle-sde" />
+      <option name="PARAMETERS" value="clean all" />
+      <option name="WORKING_DIRECTORY" value="$FileDir$" />
+    </exec>
+  </tool>
+</toolSet>

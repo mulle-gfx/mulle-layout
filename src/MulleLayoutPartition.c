@@ -242,13 +242,22 @@ void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
 
 
 /**
+ * This code is from Cocotron
  */
-void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge) 
+void   CGRectDivide( CGRect rect, 
+                     CGRect *slice, 
+                     CGRect *remainder, 
+                     CGFloat amount, 
+                     CGRectEdge edge) 
 {
+   assert( slice);
+   assert( remainder);
+
     if( ! slice || ! remainder)
       return;
 
-    if (CGRectIsNull(rect)) {
+    if (CGRectIsNull(rect)) 
+    {
         *slice     = CGRectNull;
         *remainder = CGRectNull;
         return;
@@ -330,4 +339,3 @@ void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount,
             abort();
     }
 }
-
