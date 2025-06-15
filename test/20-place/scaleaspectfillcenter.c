@@ -27,7 +27,7 @@ int   main()
    contentRect = CGRectInset( screen, 1, 1);
    rect        = CGRectMake( 4, 3, 3, 4);
 
-   placed      = CGRectPlaceInRect( rect, contentRect, CGContentModeScaleAspectFill|CGContentModeCenterPoint);
+   placed      = CGRectPlaceInRect( rect, contentRect, CGContentModeScaleAspectFill|CGContentModeCenter);
 
    printf( "contentRect : "); CGRectPrint( contentRect); printf( "\n");
    printf( "rect        : "); CGRectPrint( rect);        printf( "\n");

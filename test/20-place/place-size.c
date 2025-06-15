@@ -35,7 +35,7 @@ static CGContentMode  modes[] =
    CGContentModeBottomLeft,
    CGContentModeLeft,
    CGContentModeTopLeft,
-   CGContentModeCenterPoint,
+   CGContentModeCenter,
    CGContentModeScaleToFillHorizontal,
    CGContentModeScaleToFillVertical,
    CGContentModeScaleToFill,

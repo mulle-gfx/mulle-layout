@@ -9,7 +9,7 @@ static CGContentMode   contentModes[ 12] =
    CGContentModeScaleToFill,
    CGContentModeScaleAspectFit,
    CGContentModeScaleAspectFill,
-   CGContentModeCenterPoint,
+   CGContentModeCenter,
 
    CGContentModeTop,
    CGContentModeBottom,
@@ -101,7 +101,7 @@ void   drawRectPlacement( NVGcontext *vg,
    size.width  = rect.size.width  / 3.0;
    size.height = rect.size.height / 3.0 > size.width ? size.width : rect.size.height / 3.0;
 
-   smallRect = CGSizePlaceInRect( size, rect, CGContentModeCenterPoint);
+   smallRect = CGSizePlaceInRect( size, rect, CGContentModeCenter);
 
    nvgBeginPath( vg);
    {

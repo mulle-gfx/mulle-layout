@@ -40,7 +40,7 @@ enum CGContentMode
    CGContentModeBottomLeft      = CADirectionBottom | CADirectionLeft,
    CGContentModeLeft            = CADirectionLeft,
    CGContentModeTopLeft         = CADirectionTop | CADirectionLeft,
-   CGContentModeCenterPoint     = CADirectionTop
+   CGContentModeCenter          = CADirectionTop
                                  | CADirectionLeft
                                  | CADirectionBottom
                                  | CADirectionRight,
@@ -58,6 +58,11 @@ enum CGContentMode
 typedef uintptr_t    CGContentMode;
 
 
+// backwards compatibility
+#define CGContentModeCenterPoint     CGContentModeCenter
+
+
+
 static inline int   CGContentModeIsScaling( CGContentMode mode)
 {
    return( mode == CGContentModeDefault || mode >= CGContentModeScaleToFillHorizontal);
@@ -66,7 +71,7 @@ static inline int   CGContentModeIsScaling( CGContentMode mode)
 
 static inline int   CGContentModeIsValid( CGContentMode mode)
 {
-   if( (mode & 0xF) != CGContentModeCenterPoint)
+   if( (mode & 0xF) != CGContentModeCenter)
    {
       if( (mode & (CGContentModeRight|CGContentModeLeft)) == (CGContentModeRight|CGContentModeLeft))
          return( 0);
@@ -152,7 +157,7 @@ CGRect   CGRectPlaceInRect( CGRect r1, CGRect r2, CGContentMode contentMode)
 }
 
 
-static inline CGPoint   CGSizeGetCenterPointInRect( CGSize size, CGRect rect)
+static inline CGPoint   CGSizeGetCenterInRect( CGSize size, CGRect rect)
 {
    CGPoint   center;
 
@@ -167,7 +172,7 @@ static inline CGPoint   CGSizeGetCenterPointInRect( CGSize size, CGRect rect)
 
 static inline CGRect   CGRectCenterInRect( CGRect rect, CGRect bounds)
 {
-   rect.origin = CGSizeGetCenterPointInRect( rect.size, bounds);
+   rect.origin = CGSizeGetCenterInRect( rect.size, bounds);
    return( rect);
 }
 
@@ -176,7 +181,7 @@ static inline CGRect   CGSizeCenterInRect( CGSize size, CGRect bounds)
 {
    CGRect   rect;
 
-   rect.origin = CGSizeGetCenterPointInRect( size, bounds);
+   rect.origin = CGSizeGetCenterInRect( size, bounds);
    rect.size   = size;
    return( rect);
 }
@@ -252,5 +257,11 @@ static inline CGPoint   CGPointMirrorInRectV( CGPoint origin, CGRect container)
    return( origin);
 }
 
+
+CGAffineTransform   CGAffineTransformMakeWithContentMode( CGContentMode contentMode,
+                                                          CGRect sourceRect,
+                                                          CARotation sourceRotation,
+                                                          CGRect destinationRect,
+                                                          CARotation destinationRotation);
 
 #endif
