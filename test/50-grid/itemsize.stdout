@@ -828,7 +828,7 @@ screen_size: 1024,768 area:786432
       spacing_size: 10,10 row/column: 0,0 #1 ==> itemSize:1024,768 rows/columns:1/1 area:786432
       spacing_size: 10,10 row/column: 0,4 #1 ==> itemSize:248.5,768 rows/columns:1/4 area:190848
       spacing_size: 10,10 row/column: 4,0 #1 ==> itemSize:1024,184.5 rows/columns:1/1 area:188928
-      spacing_size: 10,10 row/column: 4,4 #1 ==> itemSize:248.5,184.5 rows/columns:1/4 area:45848.2
+      spacing_size: 10,10 row/column: 4,4 #1 ==> itemSize:248.5,184.5 rows/columns:1/4 area:45848.3
       spacing_size: 10,10 row/column: 0,0 #4 ==> itemSize:507,379 rows/columns:2/2 area:768612
       spacing_size: 10,10 row/column: 0,4 #4 ==> itemSize:248.5,768 rows/columns:1/4 area:763392
       spacing_size: 10,10 row/column: 4,0 #4 ==> itemSize:1024,184.5 rows/columns:4/1 area:755712
@@ -874,7 +874,7 @@ screen_size: 1024,768 area:786432
       spacing_size: 0,0 row/column: 0,4 #128 ==> itemSize:256,44 rows/columns:32/4 area:1.44179e+06
       spacing_size: 0,0 row/column: 4,0 #128 ==> itemSize:32,44 rows/columns:4/32 area:180224
       spacing_size: 0,0 row/column: 4,4 #128 ==> itemSize:256,44 rows/columns:32/4 area:1.44179e+06
-      spacing_size: 0,0 row/column: 0,0 #1024 ==> itemSize:16.7869,44 rows/columns:17/61 area:756350
+      spacing_size: 0,0 row/column: 0,0 #1024 ==> itemSize:16.7869,44 rows/columns:17/61 area:75635
       spacing_size: 0,0 row/column: 0,4 #1024 ==> itemSize:256,44 rows/columns:256/4 area:1.15343e+07
       spacing_size: 0,0 row/column: 4,0 #1024 ==> itemSize:4,44 rows/columns:4/256 area:180224
       spacing_size: 0,0 row/column: 4,4 #1024 ==> itemSize:256,44 rows/columns:256/4 area:1.15343e+07
@@ -1090,7 +1090,7 @@ screen_size: 1024,768 area:786432
       spacing_size: 10,10 row/column: 0,4 #128 ==> itemSize:44,14.3125 rows/columns:32/4 area:80608
       spacing_size: 10,10 row/column: 4,0 #128 ==> itemSize:44,184.5 rows/columns:7/19 area:1.0391e+06
       spacing_size: 10,10 row/column: 4,4 #128 ==> itemSize:44,184.5 rows/columns:32/4 area:1.0391e+06
-      spacing_size: 10,10 row/column: 0,0 #1024 ==> itemSize:44,4.40741 rows/columns:54/19 area:198580
+      spacing_size: 10,10 row/column: 0,0 #1024 ==> itemSize:44,4.40741 rows/columns:54/19 area:19858
       spacing_size: 10,10 row/column: 4,0 #1024 ==> itemSize:44,184.5 rows/columns:54/19 area:8.31283e+06
       spacing_size: 10,10 row/column: 4,4 #1024 ==> itemSize:44,184.5 rows/columns:256/4 area:8.31283e+06
       spacing_size: 10,10 row/column: 4,0 #2048 ==> itemSize:44,184.5 rows/columns:108/19 area:1.66257e+07

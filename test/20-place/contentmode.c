@@ -11,9 +11,9 @@ int   main()
    {
       for( i = 0; i <= 0xF; i++)
       {
-         printf( "0x%02x: %s\n", i + j, CGContentModeIsValid( i + j) ? "valid" : "invalid");
+         mulle_printf( "0x%02x: %s\n", i + j, CGContentModeIsValid( i + j) ? "valid" : "invalid");
       }
-      printf( "\n");
+      mulle_printf( "\n");
    }
    return( 0);
 }

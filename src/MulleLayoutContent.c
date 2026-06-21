@@ -103,7 +103,7 @@ CGRect   CGRectPositionInRect( CGRect result, CGRect r, CGContentMode contentMod
    case CGContentModeDefault :
       return( result);
 
-   case CGContentModeCenter :
+   case CGContentModeCenterPoint :
       result.origin.x = CGRectGetMidX( r) - result.size.width / 2.0;
       result.origin.y = CGRectGetMidY( r) - result.size.height / 2.0;
       return( result);
@@ -269,7 +269,7 @@ CGAffineTransform   CGAffineTransformMakeWithContentMode( CGContentMode contentM
         );
         break;
 
-     case CGContentModeCenter:
+     case CGContentModeCenterPoint:
         translate = CGPointMake(
            destinationRect.origin.x + (destinationRect.size.width - sourceRect.size.width) / 2.0,
            destinationRect.origin.y + (destinationRect.size.height - sourceRect.size.height) / 2.0

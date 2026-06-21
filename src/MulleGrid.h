@@ -124,10 +124,13 @@ static inline int   MulleGridConstruct( struct MulleGrid *p,
    if( ! p)
       return( 0);
 
-   _MulleGridConstruct( p, numberOfItems, state);
-   // want this to set CGRectNull if invalid, not optimizing
-   // the error case here
-   return( _MulleGridVerify( p));
+   if( ! _MulleGridConstruct( p, numberOfItems, state) ||
+       ! _MulleGridVerify( p))
+   {
+      p->canvas = CGRectNull;
+      return( 0);
+   }
+   return( 1);
 }
 
 

@@ -79,7 +79,6 @@ int   main()
          rval = MulleGridConstruct( &grid, 1024, NULL);
          if( MulleGridIsValid( &grid))
          {
-            assert( rval == 1);
             mulle_printf( "row/column: %u,%u ", rows, cols);
             mulle_printf( "==> itemSize:%g,%g itemAspect:%g itemArea:%g rows/columns:%u/%u area:%g",
                               grid.itemSize.width, grid.itemSize.height,
@@ -89,6 +88,9 @@ int   main()
                               grid.columns,
                               1024 * grid.itemSize.width * grid.itemSize.height);
             mulle_printf( "\n");
+
+            // do after print :)
+            assert( rval == 1);
 
             area = (1024 * 768) - (grid.itemSize.width * grid.itemSize.height * 1024);
             if( area < closest)
@@ -102,7 +104,7 @@ int   main()
             assert( rval == 0);
       }
 
-   printf( "closest: %d,%d\n", closest_rows, closest_columns);
+   mulle_printf( "closest: %d,%d\n", closest_rows, closest_columns);
    return( 0);
 }
 

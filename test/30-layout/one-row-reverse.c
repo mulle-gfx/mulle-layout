@@ -51,7 +51,7 @@ int   main()
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsZero,
          CGSizeMake( 10, 10), MulleEdgeInsetsMakeLR( 4, 4));
 
-   printf("\n");
+   mulle_printf("\n");
 
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsMakeLR( 0, 4),
          CGSizeMake( 10, 10), MulleEdgeInsetsZero);
@@ -62,7 +62,7 @@ int   main()
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsMakeLR( 0, 4),
          CGSizeMake( 10, 10), MulleEdgeInsetsMakeLR( 4, 4));
 
-   printf("\n");
+   mulle_printf("\n");
 
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsMakeLR( 4, 0),
          CGSizeMake( 10, 10), MulleEdgeInsetsZero);
@@ -73,7 +73,7 @@ int   main()
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsMakeLR( 4, 0),
          CGSizeMake( 10, 10), MulleEdgeInsetsMakeLR( 4, 4));
 
-   printf("\n");
+   mulle_printf("\n");
 
    test( CGRectMake( 0, 0, 100, 20), MulleEdgeInsetsMakeLR( 4, 4),
          CGSizeMake( 10, 10), MulleEdgeInsetsZero);

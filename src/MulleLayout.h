@@ -155,6 +155,7 @@ static inline CGRect   MulleLayoutGetContentRect( struct MulleLayout *p)
 // ,        .    .
 // ...............
 //
+MULLE__LAYOUT_GLOBAL
 CGRect   _MulleLayoutGetRowContentRect( struct MulleLayout *p);
 
 
@@ -195,6 +196,7 @@ static inline CGRect   MulleLayoutGetRowContentRect( struct MulleLayout *p)
 // .        |     |
 // .........|-----
 //
+MULLE__LAYOUT_GLOBAL
 CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p);
 
 static inline CGPoint   MulleLayoutGetRemainingRowContentOrigin( struct MulleLayout *p)
@@ -244,6 +246,7 @@ static inline int   MulleLayoutIsEmptyRow(  struct MulleLayout *p)
 // |                   |
 // +-------------------+
 //
+MULLE__LAYOUT_GLOBAL
 void   _MulleLayoutNewRow( struct MulleLayout *p);
 
 
@@ -281,6 +284,7 @@ static inline void   MulleLayoutNewRow( struct MulleLayout *p)
 // Returns CGRectNull rect, if it doesn't fit. If it doesn't fit, its
 // time for a new row. 
 //
+MULLE__LAYOUT_GLOBAL
 CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
                                CGSize size,
                                MulleEdgeInsets margins);
@@ -298,6 +302,7 @@ static inline CGRect   MulleLayoutAddToRow( struct MulleLayout *p,
 
 // an existing row will be preempted, a new row of height h will be
 // returned ( if space is available)
+MULLE__LAYOUT_GLOBAL
 CGRect   _MulleLayoutAddRowWithHeight( struct MulleLayout *p,
                                        CGFloat h,
                                        MulleEdgeInsets margins);
@@ -312,6 +317,7 @@ static inline CGRect   MulleLayoutAddRowWithHeight( struct MulleLayout *p,
 }
 
 
+MULLE__LAYOUT_GLOBAL
 CGRect   _MulleLayoutAddToRowWithOverflow( struct MulleLayout *p,
                                            CGSize size,
                                            MulleEdgeInsets margins);

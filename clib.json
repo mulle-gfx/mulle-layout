@@ -6,8 +6,9 @@
    "license" : "UNLICENSED",
    "repo" : "MulleUI/mulle-layout",
    "src" : [
-      "src/include-private.h",
-      "src/include.h",
+      "asset/dox/TOC.md",
+      "src/generic/include-private.h",
+      "src/generic/include.h",
       "src/mulle-layout.c",
       "src/mulle-layout.h",
       "src/MulleCornerInsets.h",

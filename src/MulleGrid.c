@@ -45,8 +45,11 @@ static void   _MulleGridComputeColumns( struct MulleGrid *p, CGRect insetCanvas)
 {
    assert( p->itemSize.width + p->spacing.width > 0.0);
 
-   p->columns = (uintptr_t) floor( (insetCanvas.size.width + p->spacing.width) /
-                                   (p->itemSize.width + p->spacing.width));
+   if( isinf( insetCanvas.size.width))
+      p->columns = 0;
+   else
+      p->columns = (uintptr_t) floor( (insetCanvas.size.width + p->spacing.width) /
+                                      (p->itemSize.width + p->spacing.width));
 }
 
 
@@ -54,14 +57,22 @@ static void   _MulleGridComputeRows( struct MulleGrid *p, CGRect insetCanvas)
 {
    assert( p->itemSize.height + p->spacing.height > 0.0);
 
-   p->rows = (uintptr_t) floor( (insetCanvas.size.height + p->spacing.height) /
-                                (p->itemSize.height + p->spacing.height));
+   if( isinf( insetCanvas.size.height))
+      p->rows = 0;
+   else
+      p->rows = (uintptr_t) floor( (insetCanvas.size.height + p->spacing.height) /
+                                   (p->itemSize.height + p->spacing.height));
 }
 
 
 
 static void   _MulleGridComputeCanvasWidth( struct MulleGrid *p)
 {
+   if( ! p->columns)
+   {
+      p->canvas.size.width = 0.0;
+      return;
+   }
    p->canvas.size.width = (p->columns * p->itemSize.width)
                           + ((p->columns - 1) * p->spacing.width)
                           + p->insets.left + p->insets.right;
@@ -70,6 +81,11 @@ static void   _MulleGridComputeCanvasWidth( struct MulleGrid *p)
 
 static void   _MulleGridComputeCanvasHeight( struct MulleGrid *p)
 {
+   if( ! p->rows)
+   {
+      p->canvas.size.height = 0.0;
+      return;
+   }
    p->canvas.size.height = (p->rows * p->itemSize.height)
                           + ((p->rows - 1) * p->spacing.height)
                           + p->insets.top + p->insets.bottom;
@@ -87,9 +103,9 @@ static void   _MulleGridComputeCanvas( struct MulleGrid *p)
 #endif
 
 
-static void _MulleGridComputeItemSizeAndRowsColumns( struct MulleGrid *p,
-                                                     CGRect insetCanvas,
-                                                     uintptr_t numberOfItems)
+static void   _MulleGridComputeItemSizeAndRowsColumns( struct MulleGrid *p,
+                                                       CGRect insetCanvas,
+                                                       uintptr_t numberOfItems)
 {
    CGFloat     aspectRatio;
    uintptr_t   bestColumns;
@@ -224,11 +240,11 @@ int   _MulleGridConstruct( struct MulleGrid *p,
                            uintptr_t numberOfItems,
                            uintptr_t *state)
 {
-   CGFloat        n;
+   CGFloat     n;
    uintptr_t   dummy;
-   CGRect         insetCanvas;
+   CGRect      insetCanvas;
 
-   n = numberOfItems ? (CGFloat) numberOfItems : 1.0f;
+   n      = numberOfItems ? (CGFloat) numberOfItems : 1.0f;
 
    state  = state ? state : &dummy;
    *state = 0;
@@ -277,11 +293,11 @@ int   _MulleGridConstruct( struct MulleGrid *p,
          *state |= MulleGridStateRows;
          _MulleGridComputeRows( p, insetCanvas);
          if( p->rows == 0)
-            return( 0);
+            goto invalid;
       }
 
       if( p->columns == 0)
-         p->columns = ceil((CGFloat) n / p->rows);
+         p->columns = (uintptr_t) ceil( n / p->rows);
 
       _MulleGridComputeItemWidth( p, insetCanvas);
    }
@@ -295,24 +311,24 @@ int   _MulleGridConstruct( struct MulleGrid *p,
          *state    |= MulleGridStateColumns;
          _MulleGridComputeColumns( p, insetCanvas);
          if( p->columns == 0)
-            return( 0);
+            goto invalid;
       }
 
       if( p->rows == 0)
-         p->rows = ceil( (CGFloat) n / p->columns);
+         p->rows = (uintptr_t) ceil( n / p->columns);
 
       _MulleGridComputeItemHeight( p, insetCanvas);
    }
 
    // from here on
    if( p->itemSize.width <= 0.0f || p->itemSize.height <= 0.0f)
-      return( 0);
+      goto invalid;
 
    if( ! p->columns)
    {
       *state |= MulleGridStateColumns;
       if( p->itemSize.width + p->spacing.width <= 0.0)
-         return( 0);
+         goto invalid;
 
       _MulleGridComputeColumns( p, insetCanvas);
 
@@ -324,7 +340,7 @@ int   _MulleGridConstruct( struct MulleGrid *p,
    {
       *state |= MulleGridStateRows;
       if( p->itemSize.height + p->spacing.height <= 0.0)
-         return( 0);
+         goto invalid;
 
       _MulleGridComputeRows( p, insetCanvas);
 
@@ -343,6 +359,13 @@ int   _MulleGridConstruct( struct MulleGrid *p,
 
    if( isinf( p->canvas.size.height) || isinf( p->canvas.size.width))
    {
+#if 0
+      mulle_fprintf( stdout, "< canvas   %.1f %.1f\n", p->canvas.size.width, p->canvas.size.height);
+      mulle_fprintf( stdout, "< itemSize %.1f %.1f\n", p->itemSize.width, p->itemSize.height);
+      mulle_fprintf( stdout, "< spacing  %.1f %.1f\n", p->spacing.width, p->spacing.height);
+      mulle_fprintf( stdout, "< insets   %.1f %.1f %.1f %.1f\n", p->insets.top, p->insets.left, p->insets.bottom, p->insets.right);
+      mulle_fprintf( stdout, "< row/col  %.tu %tu (%.1f)\n", p->rows, p->columns, n);
+#endif
       if( isinf( p->canvas.size.width))
       {
          *state |= MulleGridStateCanvasWidth;
@@ -356,37 +379,36 @@ int   _MulleGridConstruct( struct MulleGrid *p,
       }
    }
 
+
    return( 1);
+
+invalid:
+   p->canvas = CGRectNull;
+   return( 0);
 }
 
 
 int   _MulleGridVerify( struct MulleGrid *p)
 {
-   int   rval;
-
-   rval = 1;
-
    // sanity check, if we computed nothing everything is invalid
    if( ! p->columns || ! p->rows)
-      rval = 0;
+      return( 0);
 
    if( p->itemSize.width <= 0.0f || p->itemSize.height <= 0.0f)
-      rval = 0;
+      return( 0);
    if( isinf( p->itemSize.width) || isinf( p->itemSize.height))
-      rval = 0;
+      return( 0);
    if( isnan( p->itemSize.width) || isnan( p->itemSize.height))
-      rval = 0;
+      return( 0);
 
    if( p->canvas.size.width <= 0.0f || p->canvas.size.height <= 0.0f)
-      rval = 0;
+      return( 0);
    if( isinf( p->canvas.size.width) || isinf( p->canvas.size.height))
-      rval = 0;
+      return( 0);
    if( isnan( p->canvas.size.width) || isnan( p->canvas.size.height))
-      rval = 0;
+      return( 0);
 
-   if( ! rval)
-      p->canvas = CGRectNull;
-   return( rval);
+   return( 1);
 }
 
 

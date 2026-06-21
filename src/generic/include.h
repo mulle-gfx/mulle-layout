@@ -26,15 +26,20 @@
 #include "_mulle-layout-include.h"
 
 
-#ifdef MULLE__LAYOUT_BUILD
-# define MULLE__LAYOUT_GLOBAL    MULLE_C_GLOBAL
-#else
-# if defined( MULLE_LAYOUT_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_LAYOUT_INCLUDE_STATIC))
-#  define MULLE__LAYOUT_GLOBAL   MULLE_C_EXTERN_GLOBAL
+#ifndef MULLE__LAYOUT_GLOBAL
+# if defined( MULLE__LAYOUT_BUILD) || defined( MULLE__GFX_BUILD)
+#  define MULLE__LAYOUT_GLOBAL        MULLE_C_GLOBAL
+#  define MULLE__LAYOUT_GLOBAL_VAR    MULLE_C_GLOBAL_VAR
 # else
-#  define MULLE__LAYOUT_GLOBAL   extern
+#  if defined( MULLE__LAYOUT_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE__LAYOUT_INCLUDE_STATIC))
+#   define MULLE__LAYOUT_GLOBAL       MULLE_C_EXTERN_GLOBAL
+#  else
+#   define MULLE__LAYOUT_GLOBAL       extern
+#  endif
+#  define MULLE__LAYOUT_GLOBAL_VAR
 # endif
 #endif
+
 
 
 /* You can add some more include statements here */

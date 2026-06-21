@@ -40,7 +40,7 @@ enum CGContentMode
    CGContentModeBottomLeft      = CADirectionBottom | CADirectionLeft,
    CGContentModeLeft            = CADirectionLeft,
    CGContentModeTopLeft         = CADirectionTop | CADirectionLeft,
-   CGContentModeCenter          = CADirectionTop
+   CGContentModeCenterPoint     = CADirectionTop
                                  | CADirectionLeft
                                  | CADirectionBottom
                                  | CADirectionRight,
@@ -59,7 +59,7 @@ typedef uintptr_t    CGContentMode;
 
 
 // backwards compatibility
-#define CGContentModeCenterPoint     CGContentModeCenter
+#define CGContentModeCenter      CGContentModeCenterPoint
 
 
 
@@ -71,7 +71,7 @@ static inline int   CGContentModeIsScaling( CGContentMode mode)
 
 static inline int   CGContentModeIsValid( CGContentMode mode)
 {
-   if( (mode & 0xF) != CGContentModeCenter)
+   if( (mode & 0xF) != CGContentModeCenterPoint)
    {
       if( (mode & (CGContentModeRight|CGContentModeLeft)) == (CGContentModeRight|CGContentModeLeft))
          return( 0);
@@ -258,6 +258,7 @@ static inline CGPoint   CGPointMirrorInRectV( CGPoint origin, CGRect container)
 }
 
 
+MULLE__LAYOUT_GLOBAL
 CGAffineTransform   CGAffineTransformMakeWithContentMode( CGContentMode contentMode,
                                                           CGRect sourceRect,
                                                           CARotation sourceRotation,

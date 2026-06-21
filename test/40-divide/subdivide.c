@@ -6,7 +6,7 @@
 
 void   CGRectPrint( CGRect rect)
 {
-   printf( "{ %.2f %.2f %.2f %.2f }",
+   mulle_printf( "{ %.2f %.2f %.2f %.2f }",
             rect.origin.x,
             rect.origin.y,
             rect.size.width,
@@ -21,16 +21,16 @@ static void   _test( CGRect rect1, CGRect rect2)
 
    n = CGRectSubdivide( rect1, rect2, rects);
 
-   printf( "a=");
+   mulle_printf( "a=");
    CGRectPrint( rect1);
-   printf( " b=");
+   mulle_printf( " b=");
    CGRectPrint( rect2);
    for( i = 0; i < n; i++)
    {
-      printf( " s[%u]=", i);
+      mulle_printf( " s[%u]=", i);
       CGRectPrint( rects[ i]);
    }
-   printf( "\n");
+   mulle_printf( "\n");
 }
 
 

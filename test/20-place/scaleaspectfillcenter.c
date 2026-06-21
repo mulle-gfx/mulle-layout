@@ -5,7 +5,7 @@
 
 static void  CGRectPrint( CGRect rect)
 {
-   printf( "{ .x = %.2f, .y = %.2f, .w = %.2f, .h = %.2f }",
+   mulle_printf( "{ .x = %.2f, .y = %.2f, .w = %.2f, .h = %.2f }",
            rect.origin.x,
            rect.origin.y,
            rect.size.width,
@@ -27,11 +27,11 @@ int   main()
    contentRect = CGRectInset( screen, 1, 1);
    rect        = CGRectMake( 4, 3, 3, 4);
 
-   placed      = CGRectPlaceInRect( rect, contentRect, CGContentModeScaleAspectFill|CGContentModeCenter);
+   placed      = CGRectPlaceInRect( rect, contentRect, CGContentModeScaleAspectFill|CGContentModeCenterPoint);
 
-   printf( "contentRect : "); CGRectPrint( contentRect); printf( "\n");
-   printf( "rect        : "); CGRectPrint( rect);        printf( "\n");
-   printf( "placed      : "); CGRectPrint( placed);      printf( "\n");
+   mulle_printf( "contentRect : "); CGRectPrint( contentRect); mulle_printf( "\n");
+   mulle_printf( "rect        : "); CGRectPrint( rect);        mulle_printf( "\n");
+   mulle_printf( "placed      : "); CGRectPrint( placed);      mulle_printf( "\n");
 
    return( 0);
 }

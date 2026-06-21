@@ -1,1 +1,1 @@
-mulle-layout;${MULLE__LAYOUT_NODETYPE:-tar};;54FB3A79-92AC-407B-81B2-305628897617;${MULLE__LAYOUT_URL:-https://github.com/mulle-kybernetik-tv/mulle-layout/archive/${MULLE_TAG}.tar.gz};${MULLE__LAYOUT_BRANCH};${MULLE__LAYOUT_TAG:-latest};;
+mulle-layout;${MULLE__LAYOUT_NODETYPE:-tar};;9A38D7A0-3BF0-4D4A-9EDF-65C5534298E2;${MULLE__LAYOUT_URL:-https://github.com/nat/mulle-layout/archive/${MULLE_TAG}.tar.gz};${MULLE__LAYOUT_BRANCH};${MULLE__LAYOUT_TAG:-latest};;
