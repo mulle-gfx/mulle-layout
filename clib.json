@@ -4,7 +4,7 @@
    "description" : "📏 Rectangle geometry and manual layouting",
    "keywords" : [],
    "license" : "UNLICENSED",
-   "repo" : "MulleUI/mulle-layout",
+   "repo" : "mulle-gfx/mulle-layout",
    "src" : [
       "asset/dox/TOC.md",
       "src/generic/include-private.h",

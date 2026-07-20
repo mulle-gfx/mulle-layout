@@ -2,12 +2,6 @@
 
 #### 📏 Rectangle geometry and manual layouting
 
-
-# 📏 mulle-layout
-
-#### 📏 Rectangle geometry and manual layouting
-
-
 This library contains functions for manual layouting of rectangles.
 
 | Datatype             | Description                                                      |
@@ -24,7 +18,7 @@ This library contains functions for manual layouting of rectangles.
 Here you can see a demo of the library in action. The available window space
 is split into vertical and horizontal slices using "paritioning".
 
-In the first row you see "contentmode" examples of a rectangle inside
+In the first row you see "contentMode" examples of a rectangle inside
 another rectangle.
 
 In the second and third row, you see "placement" of a rectangle with fixed
@@ -40,9 +34,9 @@ then row fashion.
 
 
 
-| Release Version                                       | Release Notes
-|-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-gfx/mulle-layout.svg?branch=release) [![Build Status](https://github.com/mulle-gfx/mulle-layout/workflows/CI/badge.svg?branch=release)](//github.com/mulle-gfx/mulle-layout/actions) | [RELEASENOTES](RELEASENOTES.md) |
+| Release Version                                       | Release Notes  | AI Documentation
+|-------------------------------------------------------|----------------|---------------
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-gfx/mulle-layout.svg) [![Build Status](https://github.com/mulle-gfx/mulle-layout/workflows/CI/badge.svg)](//github.com/mulle-gfx/mulle-layout/actions) | [RELEASENOTES](RELEASENOTES.md) | [DeepWiki for mulle-layout](https://deepwiki.com/mulle-gfx/mulle-layout)
 
 
 
@@ -59,9 +53,9 @@ then row fashion.
 
 ## Add
 
-**This project is a component of the [mulle-core](//github.com/mulle-core/mulle-core) library. As such you usually will *not* add or install it
-individually, unless you specifically do not want to link against
-`mulle-core`.**
+**This project is a component of the [mulle-gfx](//github.com/mulle-gfx/mulle-gfx) library.
+As such you usually will *not* add or install it individually, unless you
+specifically do not want to link against `mulle-gfx`.**
 
 
 ### Add as an individual component
@@ -100,7 +94,7 @@ Install the requirements:
 
 | Requirements                                 | Description
 |----------------------------------------------|-----------------------
-| [mulle-geometry](https://github.com/MulleUI/mulle-geometry)             | 
+| [mulle-geometry](https://github.com/MulleUI/mulle-geometry)             | 🔭 Basic geometric types
 
 Install **mulle-layout** into `/usr/local` with [cmake](https://cmake.org):
 

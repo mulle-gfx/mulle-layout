@@ -3,15 +3,18 @@
    {
       description="📏 Rectangle geometry and manual layouting";
       domain="github";
+      language="c";
+      dialect="c";
       name="mulle-layout";
       user="mulle-gfx";
       repo="mulle-layout";
-      homepage="https://github.com/MulleUI/mulle-layout/tree/mulle-layout.git";
-      license="UNLICENSED"
+      homepage="https://github.com/mulle-gfx/mulle-layout";
+      license="UNLICENSED";
    };
    dependencies =
    (
       {
+         description="🔭 Basic geometric types";
          domain="github";
          name="mulle-geometry";
          repo="mulle-geometry";
