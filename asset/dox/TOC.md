@@ -57,19 +57,29 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 
 #### Lifecycle Functions
 - `MulleEdgeInsetsMake(top, left, bottom, right)`: Standard constructor (TLBR order, Apple convention)
+- `MulleEdgeInsetsMakeTLBR(top, left, bottom, right)`: Explicit TLBR alias
+- `MulleEdgeInsetsMakeCounterClockwise(top, left, bottom, right)`: Another TLBR alias
 - `MulleEdgeInsetsMakeClockwise(top, right, bottom, left)`: CSS-style ordering
 - `MulleEdgeInsetsMakeNatural(left, top, right, bottom)`: Natural reading order
 - `MulleEdgeInsetsMakeHV(left, right, top, bottom)`: Groups horizontal/vertical pairs
+- `MulleEdgeInsetsMakeAtariLE(top, bottom, left, right)`: Atari joystick order (little-endian)
+- `MulleEdgeInsetsMakeAtariBE(right, left, bottom, top)`: Atari joystick order (big-endian)
 - `MulleEdgeInsetsMakeLR(left, right)`: Left-right only (top/bottom are 0)
 - `MulleEdgeInsetsMakeTB(top, bottom)`: Top-bottom only (left/right are 0)
+- `MulleEdgeInsetsMakeU(topLeft, leftTop, bottomRight, rightBottom, index)`: Alternating constructor (index 0 or 1 swaps pairs)
+- `MulleEdgeInsetsData(top, left, bottom, right)`: Static initializer macro
 
 #### Core Operations
 - `MulleEdgeInsetsInsetRect(insets, rect)`: Shrinks a rect by applying insets inward
 - `MulleEdgeInsetsExtrudeRect(insets, rect)`: Expands a rect by applying insets outward
 - `MulleEdgeInsetsInsetPoint(insets, origin)`: Offsets a point by left/top insets
+- `MulleEdgeInsetsExtrudePoint(insets, origin)`: Offsets a point by negative left/top insets
 - `MulleEdgeInsetsInsetSize(insets, size)`: Reduces size by sum of horizontal/vertical insets
+- `MulleEdgeInsetsExtrudeSize(insets, size)`: Increases size by sum of horizontal/vertical insets
 - `MulleEdgeInsetsUnion(a, b)`: Returns maximum insets (element-wise max)
 - `MulleEdgeInsetsIntersect(a, b)`: Returns minimum insets (element-wise min)
+- `CGRectInsetUsingEdgeInsets(rect, insets)`: Alias for InsetRect with swapped argument order
+- `CGRectExtrudeUsingEdgeInsets(rect, insets)`: Alias for ExtrudeRect with swapped argument order
 
 #### Inspection Functions
 - `MulleEdgeInsetsEqualToEdgeInsets(insets1, insets2)`: Equality comparison
@@ -89,8 +99,10 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
   - `float bottomLeft`: Bottom-left corner radius
 
 #### Lifecycle Functions
-- `MulleCornerInsetsMake(topLeft, topRight, bottomRight, bottomLeft)`: Standard constructor
+- `MulleCornerInsetsMake(topLeft, topRight, bottomRight, bottomLeft)`: Standard constructor (nanovg order)
+- `MulleCornerInsetsMakeTLRBLR(topLeft, topRight, bottomLeft, bottomRight)`: Alternate constructor (TL-TR-BL-BR order)
 - `MulleCornerInsetsMakeWithCornerRadius(r)`: Uniform corner radius for all corners
+- `MulleCornerInsetsData(tl, tr, br, bl)`: Static initializer macro
 
 #### Constants
 - `MulleCornerInsetsZero`: All corners with 0.0 radius
@@ -120,16 +132,24 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 - `CGSizePlaceInRectWithAspectFill(size, rect)`: Convenience for aspect fill placement
 
 #### Utility Functions
+- `CGSizeGetAspectFitFactor(dstSize, srcSize)`: Get scale factor for aspect fit
+- `CGSizeGetAspectFillFactor(dstSize, srcSize)`: Get scale factor for aspect fill
+- `CGSizePlaceInRectWithAspectCorrection(size, rect, fill)`: Core aspect placement (0=fit, 1=fill)
+- `CGSizeGetCenterInRect(size, rect)`: Get origin point to center size in rect
 - `CGRectCenterInRect(rect, bounds)`: Center a rect within bounds
 - `CGSizeCenterInRect(size, bounds)`: Center a size within bounds, returns CGRect
 - `CGRectCenterAtPoint(rect, point)`: Center rect at specific point
 - `CGRectGetLargestSquareSize(rect)`: Get largest square that fits in rect
 - `CGRectMirrorInRectH(rect, container)`: Mirror rect horizontally within container
+- `CGPointMirrorInRectH(origin, container)`: Mirror point horizontally within container
 - `CGRectMirrorInRectV(rect, container)`: Mirror rect vertically within container
+- `CGPointMirrorInRectV(origin, container)`: Mirror point vertically within container
+- `CGAffineTransformMakeWithContentMode(contentMode, sourceRect, sourceRotation, destinationRect, destinationRotation)`: Create an affine transform that maps a source rect/rotation to a destination rect/rotation using the given content mode
 
 #### Validation
 - `CGContentModeIsValid(mode)`: Check if contentMode is valid
 - `CGContentModeIsScaling(mode)`: Check if mode includes scaling
+- `CGContentModeAssert(mode)`: Assert that contentMode is valid
 
 ### 3.4. `MulleLayoutPlacement.h`
 
@@ -155,6 +175,7 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 
 #### Core Operations
 - `MulleLayoutPlacementMake(h, v)`: Create placement from horizontal and vertical components
+- `MulleLayoutPlacementData(h, v)`: Static initializer macro for placement constants
 - `MulleLayoutPlacementGetHorizontalPlacement(value)`: Extract horizontal component
 - `MulleLayoutPlacementGetVerticalPlacement(value)`: Extract vertical component
 - `CGRectPlaceNextToRect(rect, other, placement)`: Position rect adjacent to other using placement
@@ -187,6 +208,7 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 #### Aliases
 - `CGRectPartitionH()`, `CGRectPartitionV()`, `CGRectPartitionVH()`: Short aliases
 - `CGRectPartitionIntoColumns()`, `CGRectPartitionIntoRows()`: Descriptive aliases
+- `CGRectPartitionVerticallyAndHorizontally()`: Descriptive alias for PartitionIntoRowsAndColumns
 
 #### Subdivision Operations
 - `CGRectSubdivide(rect, other, output[4])`: Subdivide rect by removing overlapping area of other, returns up to 4 rects
