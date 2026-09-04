@@ -1,5 +1,5 @@
 screen_size: 1024,768 area:786432 aspect:1.33333
    item_size: 0,0
-      spacing_size: 10,10 row/column: 0,0 #1024 ==> itemSize:17.2105,18.8148 itemAspect:0.914732 itemArea:323.813 rows/columns:27/38 area:331584
-      spacing_size: 10,10 row/column: 0,0 #16 ==> itemSize:248.5,184.5 itemAspect:1.34688 itemArea:45848.3 rows/columns:4/4 area:733572
+      spacing_size: 10,10 row/column: 0,0 #1024 ==> itemSize:17.9459,17.7857 itemAspect:1.00901 itemArea:319.181 rows/columns:28/37 area:326842
+      spacing_size: 10,10 row/column: 0,0 #16 ==> itemSize:196.8,184.5 itemAspect:1.06667 itemArea:36309.6 rows/columns:4/5 area:580954
       spacing_size: 10,10 row/column: 0,0 #1 ==> itemSize:1024,768 itemAspect:1.33333 itemArea:786432 rows/columns:1/1 area:786432

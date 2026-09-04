@@ -1,0 +1,4 @@
+slice x=0.0 y=0.0 w=30.0 h=50.0
+remainder x=30.0 y=0.0 w=70.0 h=50.0
+edge0 slice x=0.0 y=0.0 w=30.0 h=50.0
+edge0 remainder x=30.0 y=0.0 w=70.0 h=50.0

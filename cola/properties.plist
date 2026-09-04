@@ -10,6 +10,7 @@
       repo="mulle-layout";
       homepage="https://github.com/mulle-gfx/mulle-layout";
       license="UNLICENSED";
+      version="0.1.0";
    };
    dependencies =
    (

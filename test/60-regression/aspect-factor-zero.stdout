@@ -1,0 +1,5 @@
+fit zero-src: 0.0
+fit zero-dst: 0.0
+fill zero-src-h: 0.0
+fill zero-dst-w: 0.0
+fit normal: 1.0

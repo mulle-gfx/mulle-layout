@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2021 Nat!, Mulle kybernetiK
+//  MulleLayoutPartition.h
+//  mulle-layout
+//
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #ifndef mulle_layout_partition_h__
 #define mulle_layout_partition_h__
@@ -99,8 +130,15 @@ static inline void   CGRectPartitionV( CGRect frame,
 //    111
 //
 // returns the number of rects created. If there is no overlap, you get
-// the original rect back in output[ 0] and i == 1
-// You will always get i >= 1 back.
+// the original rect back in output[ 0] and i == 1.
+// Returns 0 when other completely covers rect (nothing remains).
+//
+// This is the rect subtraction primitive of this library: subtract one rect
+// from another, yielding up to 4 non-overlapping remainder fragments.
+// For multiple occluders, apply iteratively — subdivide each surviving
+// fragment against the next occluder. A dedicated multi-occluder API is
+// not provided; the iterative approach is simple and covers real use cases
+// (dirty-region culling, popup occlusion) without combinatorial output buffers.
 //
 MULLE__LAYOUT_GLOBAL
 unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4]);
@@ -112,6 +150,10 @@ unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4]);
 MULLE__LAYOUT_GLOBAL
 int   CGRectSubdivideIfOverlap( CGRect rect, CGRect other, CGRect output[ 4]);
 
+// CGRectEdge values differ from Apple's (MinX=0, MinY=1, MaxX=2, MaxY=3).
+// Here they map to CADirection: MinX=4(Left), MinY=1(Top), MaxX=8(Right),
+// MaxY=2(Bottom). Not value-compatible — do not pass Apple enum literals.
+//
 enum
 {
    CGRectMinXEdge = CADirectionLeft,
@@ -178,8 +220,9 @@ static inline CGRect   *CGRect2DArrayGetRowColumnAddress( CGRect *rects,
 
 
 // partition two dimensionally like 2x2 4x3 and so on
-// rects must have enough space for verticalCount * horizontalCount
-// CGRects
+// rects must have enough space for rowSize * columnSize CGRects.
+// rowSize is the number of rows, columnSize is the number of columns.
+// (Not "size of a row".)
 MULLE__LAYOUT_GLOBAL
 void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
                                           CGSize space,

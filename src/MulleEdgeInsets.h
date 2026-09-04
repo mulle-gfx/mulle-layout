@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2020 Nat!, Mulle kybernetiK
+//  MulleEdgeInsets.h
+//  mulle-layout
+//
+//  Copyright (c) 2020 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #ifndef mulle_edge_insets_h__
 #define mulle_edge_insets_h__
@@ -22,9 +53,21 @@ typedef struct MulleEdgeInsets
 } MulleEdgeInsets;
 
 
-#define MulleEdgeInsetsData( t, l, b, r)  { (l), (t), (r), (b) }
+//
+// Bare initializer list (no compound literal cast) so callers can cast it to
+// either MulleEdgeInsets or UIEdgeInsets. Uses designated initializers so the
+// field order above can change without silently transposing values, and
+// sanitizes -0.0 away because MulleEdgeInsetsEqualToEdgeInsets is memcmp based.
+//
+#define MulleEdgeInsetsData( t, l, b, r)   \
+   {                                       \
+      .left   = (l) + 0.0f,                \
+      .top    = (t) + 0.0f,                \
+      .right  = (r) + 0.0f,                \
+      .bottom = (b) + 0.0f                 \
+   }
 
-#define MulleEdgeInsetsZero   MulleEdgeInsetsMake( 0.0f, 0.0f, 0.0f, 0.0f)
+#define MulleEdgeInsetsZero   ((MulleEdgeInsets) MulleEdgeInsetsData( 0.0f, 0.0f, 0.0f, 0.0f))
 
 
 //
@@ -38,10 +81,15 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMake( CGFloat top,
                                                      CGFloat bottom,
                                                      CGFloat right)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   assert( ! isnan( top));
+   assert( ! isnan( left));
+   assert( ! isnan( bottom));
+   assert( ! isnan( right));
+
+   return( (MulleEdgeInsets){ .top    = top + 0.0f,
+                              .left   = left + 0.0f,
+                              .bottom = bottom + 0.0f,
+                              .right  = right + 0.0f });
 }
 
 static inline MulleEdgeInsets   MulleEdgeInsetsMakeTLBR( CGFloat top,
@@ -49,10 +97,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeTLBR( CGFloat top,
                                                          CGFloat bottom,
                                                          CGFloat right)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 
@@ -61,10 +106,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeCounterClockwise( CGFloat top
                                                                      CGFloat bottom,
                                                                      CGFloat right)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 
@@ -74,10 +116,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeClockwise( CGFloat top,
                                                               CGFloat bottom,
                                                               CGFloat left)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 // this keeps related values together best
@@ -86,10 +125,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeHV( CGFloat left,
                                                        CGFloat top,
                                                        CGFloat bottom)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 // order of atari joystick bits, should have been made into law really
@@ -99,10 +135,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariLE( CGFloat top,
                                                             CGFloat left,
                                                             CGFloat right)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 // this is big endian, which is my actual mind model
@@ -111,10 +144,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeAtariBE( CGFloat right,
                                                             CGFloat bottom,
                                                             CGFloat top)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 
@@ -127,10 +157,7 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeNatural( CGFloat left,
                                                             CGFloat right,
                                                             CGFloat bottom)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = left,
-                              .bottom = bottom,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( top, left, bottom, right));
 }
 
 
@@ -140,20 +167,14 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeNatural( CGFloat left,
 static inline MulleEdgeInsets   MulleEdgeInsetsMakeLR( CGFloat left,
                                                        CGFloat right)
 {
-   return( (MulleEdgeInsets){ .top    = 0,
-                              .left   = left,
-                              .bottom = 0,
-                              .right  = right });
+   return( MulleEdgeInsetsMake( 0, left, 0, right));
 }
 
 
 static inline MulleEdgeInsets   MulleEdgeInsetsMakeTB( CGFloat top,
                                                        CGFloat bottom)
 {
-   return( (MulleEdgeInsets){ .top    = top,
-                              .left   = 0,
-                              .bottom = bottom,
-                              .right  = 0 });
+   return( MulleEdgeInsetsMake( top, 0, bottom, 0));
 }
 
 
@@ -164,19 +185,23 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMakeU( CGFloat topLeft,
                                                       unsigned int index)
 {
    if( index == 0)
-      return( (MulleEdgeInsets){ .top    = topLeft,
-                                 .left   = leftTop,
-                                 .bottom = bottomRight,
-                                 .right  = rightBottom });
+      return( MulleEdgeInsetsMake( topLeft, leftTop, bottomRight, rightBottom));
 
-   return( (MulleEdgeInsets){ .top    = leftTop,
-                              .left   = topLeft,
-                              .bottom = rightBottom,
-                              .right  = bottomRight });
+   return( MulleEdgeInsetsMake( leftTop, topLeft, rightBottom, bottomRight));
 }
 
 
 
+// Equality truth table (under -0.0 sanitization contract):
+//
+//   Case                 Result   Reason
+//   +0.0 == +0.0         YES     memcmp: identical bits
+//   +0.0 == -0.0         n/a     -0.0 cannot exist (Make/Data sanitize)
+//   NaN  == NaN          YES     memcmp: same bit pattern
+//   NaN  == finite       NO      memcmp: different bits
+//   +INF == +INF         YES     memcmp: same bit pattern
+//   +INF == -INF         NO      memcmp: different sign bit
+//
 static inline int   MulleEdgeInsetsEqualToEdgeInsets( MulleEdgeInsets insets1,
                                                       MulleEdgeInsets insets2)
 {

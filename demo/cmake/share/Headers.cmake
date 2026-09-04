@@ -6,7 +6,7 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
-option( RESOLVE_INSTALLABLE_HEADER_SYMLINKS "Resolve PROJECT_INSTALLABLE_HEADERS symlinks" OFF)
+option( RESOLVE_INSTALLABLE_HEADER_SYMLINKS "Resolve installable header symlinks" OFF)
 message( STATUS "RESOLVE_INSTALLABLE_HEADER_SYMLINKS is ${RESOLVE_INSTALLABLE_HEADER_SYMLINKS}")
 
 
@@ -21,6 +21,49 @@ include( _Headers OPTIONAL)
 
 # === MULLE-SDE END ===
 #
+
+# When multi-reflect is enabled, keep only the selected reflect header tree
+# in build-time include/header lists and ignore all other reflect variants.
+set( _MULLE_ACTIVE_REFLECT_DIR "src/reflect")
+if( MULLE_SOURCETREE_CONFIG_NAME)
+   set( _MULLE_ACTIVE_REFLECT_DIR "src/reflect.${MULLE_SOURCETREE_CONFIG_NAME}")
+endif()
+
+function( _mulle_filter_reflect_entries listname keepdir)
+   unset( _list)
+
+   # Build a regex that matches "keepdir" as a full path segment, i.e. the
+   # entry must be "keepdir" itself or a child ("keepdir/..."). A plain
+   # substring test is wrong here, because e.g. "src/reflect.glfw" is a
+   # substring of the sibling "src/reflect.glfw-metal" and would wrongly keep
+   # it (and "src/reflect.sdl" of "src/reflect.sdl-d3d11"). Escape regex
+   # metacharacters ('.') in keepdir before use.
+   string( REGEX REPLACE "([][.*+?^$(){}|\\\\])" "\\\\\\1" _keep_re "${keepdir}")
+
+   foreach( _item ${${listname}})
+      # match src/reflect. at any depth (handles ../src/reflect. too)
+      string( REGEX MATCH "(^|/)src/reflect[.]" _is_reflect "${_item}")
+      if( _is_reflect)
+         # keep only the active reflect dir or a child of it, matching on a
+         # full path segment boundary (end-of-string or a following slash)
+         string( REGEX MATCH "(^|/)${_keep_re}(/|$)" _is_keep "${_item}")
+         if( _is_keep)
+            list( APPEND _list "${_item}")
+         endif()
+      else()
+         list( APPEND _list "${_item}")
+      endif()
+   endforeach()
+   set( ${listname} ${_list} PARENT_SCOPE)
+endfunction()
+
+_mulle_filter_reflect_entries( INCLUDE_DIRS "${_MULLE_ACTIVE_REFLECT_DIR}")
+_mulle_filter_reflect_entries( PRIVATE_HEADERS "${_MULLE_ACTIVE_REFLECT_DIR}")
+_mulle_filter_reflect_entries( PRIVATE_GENERATED_HEADERS "${_MULLE_ACTIVE_REFLECT_DIR}")
+_mulle_filter_reflect_entries( PUBLIC_HEADERS "${_MULLE_ACTIVE_REFLECT_DIR}")
+_mulle_filter_reflect_entries( PUBLIC_GENERATED_HEADERS "${_MULLE_ACTIVE_REFLECT_DIR}")
+
+list( REMOVE_DUPLICATES INCLUDE_DIRS)
 
 #
 # If you don't like the "automatic" way of generating _Headers
@@ -45,7 +88,6 @@ endfunction()
 
 
 #
-# PROJECT_INSTALLABLE_HEADERS
 # INSTALL_PUBLIC_HEADERS
 # INSTALL_PRIVATE_HEADERS
 #
@@ -66,13 +108,6 @@ if( TMP_HEADERS)
    list( REMOVE_ITEM TMP_HEADERS "include-private.h")
 endif()
 ResolveFileSymlinksIfNeeded( TMP_HEADERS INSTALL_PRIVATE_HEADERS)
-
-# let's not cache headers, as they are bound to fluctuate. when we change
-# dependencies we expect a clean
-set( PROJECT_INSTALLABLE_HEADERS
-   ${INSTALL_PUBLIC_HEADERS}
-   ${INSTALL_PRIVATE_HEADERS}
-)
 
 #
 # You can put more source and resource file definitions here.

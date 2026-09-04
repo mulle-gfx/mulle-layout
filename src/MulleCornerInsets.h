@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2020 Nat!, Mulle kybernetiK
+//  MulleCornerInsets.h
+//  mulle-layout
+//
+//  Copyright (c) 2023 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #ifndef mulle_corner_insets_h__
 #define mulle_corner_insets_h__
@@ -9,10 +40,10 @@
 
 typedef struct MulleCornerInsets
 {
-   float   topLeft;
-   float   topRight;
-   float   bottomRight;
-   float   bottomLeft;
+   CGFloat   topLeft;
+   CGFloat   topRight;
+   CGFloat   bottomRight;
+   CGFloat   bottomLeft;
 } MulleCornerInsets;
 
 #define MulleCornerInsetsData( tl, tr, br, bl)  { (tl), (tr), (br), (bl) }
@@ -21,37 +52,34 @@ typedef struct MulleCornerInsets
    ((struct MulleCornerInsets) {  0.0f, 0.0f, 0.0f, 0.0f })
 
 
-static inline struct MulleCornerInsets
-   MulleCornerInsetsMakeTLRBLR( float topLeft, float topRight, float bottomLeft, float bottomRight)
-{
-   return( (struct MulleCornerInsets) { .topLeft     = topLeft, 
-                                        .topRight    = topRight, 
-                                        .bottomRight = bottomRight, 
-                                        .bottomLeft  = bottomLeft 
-                                      });
-}
-
-
 // order as in nanovg nvgRoundedRectVarying
 static inline struct MulleCornerInsets
-   MulleCornerInsetsMake( float topLeft, float topRight, float bottomRight, float bottomLeft)
+   MulleCornerInsetsMake( CGFloat topLeft, CGFloat topRight, CGFloat bottomRight, CGFloat bottomLeft)
 {
-   return( (struct MulleCornerInsets) { .topLeft     = topLeft, 
-                                        .topRight    = topRight, 
-                                        .bottomRight = bottomRight, 
-                                        .bottomLeft  = bottomLeft 
+   assert( ! isnan( topLeft));
+   assert( ! isnan( topRight));
+   assert( ! isnan( bottomRight));
+   assert( ! isnan( bottomLeft));
+
+   return( (struct MulleCornerInsets) { .topLeft     = topLeft + 0.0f,
+                                        .topRight    = topRight + 0.0f,
+                                        .bottomRight = bottomRight + 0.0f,
+                                        .bottomLeft  = bottomLeft + 0.0f
                                       });
 }
 
 
 static inline struct MulleCornerInsets
-   MulleCornerInsetsMakeWithCornerRadius( float r)
+   MulleCornerInsetsMakeTLRBLR( CGFloat topLeft, CGFloat topRight, CGFloat bottomLeft, CGFloat bottomRight)
 {
-   return( (struct MulleCornerInsets) { .topLeft     = r, 
-                                        .topRight    = r, 
-                                        .bottomRight = r, 
-                                        .bottomLeft  = r
-                                      });
+   return( MulleCornerInsetsMake( topLeft, topRight, bottomRight, bottomLeft));
+}
+
+
+static inline struct MulleCornerInsets
+   MulleCornerInsetsMakeWithCornerRadius( CGFloat r)
+{
+   return( MulleCornerInsetsMake( r, r, r, r));
 }
 
 

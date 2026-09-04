@@ -6,21 +6,21 @@
 #define HZ  60.0f
 
 
-static void   nvgStrokeGrid( NVGcontext *vg, struct MulleGrid *_grid)
+static void   strokeGrid( CGContext *context, struct MulleGrid *_grid)
 {
    NSUInteger   i;
    CGFloat      x;
    CGFloat      y;
 
-   nvgBeginPath(vg);
+   CGContextBeginPath( context);
 
    // Draw vertical lines
    for( i = 0; i <= _grid->columns; i++)
    {
       x = MulleGridGetColumnX( _grid, i);
 
-      nvgMoveTo( vg, x, CGRectGetMinY( _grid->canvas));
-      nvgLineTo( vg, x, CGRectGetMaxY( _grid->canvas));
+      CGContextMoveTo( context, CGPointMake( x, CGRectGetMinY( _grid->canvas)));
+      CGContextLineTo( context, CGPointMake( x, CGRectGetMaxY( _grid->canvas)));
    }
 
    // Draw horizontal lines
@@ -28,18 +28,18 @@ static void   nvgStrokeGrid( NVGcontext *vg, struct MulleGrid *_grid)
    {
       y = MulleGridGetRowY( _grid, i);
 
-      nvgMoveTo( vg, CGRectGetMinX( _grid->canvas), y);
-      nvgLineTo( vg, CGRectGetMaxX( _grid->canvas), y);
+      CGContextMoveTo( context, CGPointMake( CGRectGetMinX( _grid->canvas), y));
+      CGContextLineTo( context, CGPointMake( CGRectGetMaxX( _grid->canvas), y));
    }
 
-   nvgStroke( vg);
+   CGContextStroke( context);
 }
 
 
-void   nvgCheckerboardFillGrid( NVGcontext *vg,
-                                struct MulleGrid *_grid,
-                                CGColor color1,
-                                CGColor color2)
+void   checkerboardFillGrid( CGContext *context,
+                             struct MulleGrid *_grid,
+                             CGColor color1,
+                             CGColor color2)
 {
    NSUInteger   col;
    NSUInteger   row;
@@ -54,38 +54,38 @@ void   nvgCheckerboardFillGrid( NVGcontext *vg,
          rect = MulleGridGetItemRect( _grid, row, col);
          rect = CGRectIntegral( rect);
 
-         nvgBeginPath(vg);
-         nvgRect(vg, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+         CGContextBeginPath( context);
+         CGContextRect( context, rect);
 
          if( (row + col) % 2 == 0)
             color = color1;
          else
             color = color2;
 
-         nvgFillColor( vg, color);
-         nvgFill( vg);
+         CGContextFillColor( context, color);
+         CGContextFill( context);
 
-         mvgSave( vg);
+         CGContextSave( context);
          {
-            mvgIntersectScissor( vg, rect);
+            CGContextIntersectScissor( context, rect);
 
-            mvgTextColor( vg, CGColorSuggestTextColor( color));
-            mvgTextBackgroundColor( vg, color);
+            CGContextTextColor( context, CGColorSuggestTextColor( color));
+            CGContextTextBackgroundColor( context, color);
 
             textRect = CGRectInset( rect, 4.0, 4.0);
-            mvgFontSize( vg, 10.0);
-            mvgFormatInRect( vg, textRect,
+            CGContextFontSize( context, 10.0);
+            CGContextFormatInRect( context, textRect,
                                  CGContentModeLeft|CGContentModeTop,
-                                 MVGTextNoClip,
+                                 CGTextOptionNoClip,
                                  "%s",
                                  CGPointUTF8String( rect.origin));
-            mvgFormatInRect( vg, textRect,
+            CGContextFormatInRect( context, textRect,
                                  CGContentModeRight|CGContentModeBottom,
-                                 MVGTextNoClip,
+                                 CGTextOptionNoClip,
                                  "%s",
                                  CGSizeUTF8String( rect.size));
          }
-         mvgRestore( vg);
+         CGContextRestore( context);
       }
    }
 }
@@ -191,7 +191,6 @@ static void   animateGrid( CAAnimation *animation,
 
 - (BOOL) drawInContext:(CGContext *) context
 {
-   struct NVGcontext           *vg;
    CGRect                      canvas;
    CGRect                      textRect;
    CGFloat                     fontSize;
@@ -199,7 +198,6 @@ static void   animateGrid( CAAnimation *animation,
    struct CAAnimationOptions   options;
 
    [context useFontWithNameUTF8String:"mono"];
-   vg = CGContextGetNVGContext( context);
 
    //
    // if we do this in -init, we have to write -mulleGainAccess to transfer
@@ -224,34 +222,34 @@ static void   animateGrid( CAAnimation *animation,
    if( MulleGridConstruct( &_grid, 0, &state))
    {
       // MulleGridRoundToIntegral( &_grid, state);
-      nvgCheckerboardFillGrid( vg, &_grid, CGColorMakeWhiteSmoke(), CGColorMakeMidnightBlack());
+      checkerboardFillGrid( context, &_grid, CGColorMakeWhiteSmoke(), CGColorMakeMidnightBlack());
 
-      nvgStrokeWidth( vg, 2.0);
-      nvgStrokeColor( vg, CGColorMakeRed());
-      nvgStrokeGrid( vg, &_grid);
+      CGContextStrokeWidth( context, 2.0);
+      CGContextStrokeColor( context, CGColorMakeRed());
+      strokeGrid( context, &_grid);
    }
 
 
-   mvgTextColor( vg, CGColorMakeOrange());
-   mvgTextBackgroundColor( vg, CGColorMakeWhite());
+   CGContextTextColor( context, CGColorMakeOrange());
+   CGContextTextBackgroundColor( context, CGColorMakeWhite());
 
    fontSize = 24;
-   mvgFontSize( vg, fontSize);
+   CGContextFontSize( context, fontSize);
 
    canvas   = [self canvas];
    textRect = CGRectMake( canvas.origin.x + 4.0, canvas.origin.y + 4.0, canvas.size.width, fontSize);
 
-   mvgFormatInRect( vg, textRect, 0, 0, "Canvas   : %s", CGRectUTF8String( _grid.canvas));
+   CGContextFormatInRect( context, textRect, 0, 0, "Canvas   : %s", CGRectUTF8String( _grid.canvas));
    textRect.origin.y += textRect.size.height;
-   mvgFormatInRect( vg, textRect, 0, 0, "Insets   : %s", MulleEdgeInsetsUTF8String( _grid.insets));
+   CGContextFormatInRect( context, textRect, 0, 0, "Insets   : %s", MulleEdgeInsetsUTF8String( _grid.insets));
    textRect.origin.y += textRect.size.height;
-   mvgFormatInRect( vg, textRect, 0, 0, "ItemSize : %s", CGSizeUTF8String( _grid.itemSize));
+   CGContextFormatInRect( context, textRect, 0, 0, "ItemSize : %s", CGSizeUTF8String( _grid.itemSize));
    textRect.origin.y += textRect.size.height;
-   mvgFormatInRect( vg, textRect, 0, 0, "Rows     : %u", _grid.rows);
+   CGContextFormatInRect( context, textRect, 0, 0, "Rows     : %u", _grid.rows);
    textRect.origin.y += textRect.size.height;
-   mvgFormatInRect( vg, textRect, 0, 0, "Columns  : %u", _grid.columns);
+   CGContextFormatInRect( context, textRect, 0, 0, "Columns  : %u", _grid.columns);
    textRect.origin.y += textRect.size.height;
-   mvgFormatInRect( vg, textRect, 0, 0, "Spacing  : %s", CGSizeUTF8String( _grid.spacing));
+   CGContextFormatInRect( context, textRect, 0, 0, "Spacing  : %s", CGSizeUTF8String( _grid.spacing));
    textRect.origin.y += textRect.size.height;
 
    return( YES);

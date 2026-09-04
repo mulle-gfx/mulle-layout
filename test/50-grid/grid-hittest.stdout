@@ -1,0 +1,16 @@
+grid: 3x3 item=26.67x26.67
+center(0,0): 0
+center(1,2): 5
+center(2,2): 8
+h_spacing: -1
+v_spacing: -1
+outside_left: -1
+outside_bottom: -1
+beyond_n_items: -1
+no_limit: 8
+null_grid: -1
+
+inset_grid: 4x4
+inset_topleft: 0
+inset_before_item: -1
+rowcol: row=2 col=3

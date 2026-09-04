@@ -3,32 +3,26 @@
 #import <string.h>
 
 
-static void   drawFilledRect( NVGcontext *vg, CGRect rect, CGColor color)
+static void   drawFilledRect( CGContext *context, CGRect rect, CGColor color)
 {
-   nvgBeginPath( vg);
+   CGContextBeginPath( context);
    {
-      nvgRect( vg, rect.origin.x,
-                   rect.origin.y,
-                   rect.size.width,
-                   rect.size.height);
-      nvgFillColor( vg, color);
+      CGContextRect( context, rect);
+      CGContextFillColor( context, color);
    }
-   nvgFill( vg);
+   CGContextFill( context);
 }
 
 
-static void   drawStrokedRect( NVGcontext *vg, CGRect rect, CGColor color)
+static void   drawStrokedRect( CGContext *context, CGRect rect, CGColor color)
 {
-   nvgBeginPath( vg);
+   CGContextBeginPath( context);
    {
-      nvgRect( vg, rect.origin.x,
-                   rect.origin.y,
-                   rect.size.width,
-                   rect.size.height);
-      nvgStrokeWidth( vg, 1.0);
-      nvgStrokeColor( vg, color);
+      CGContextRect( context, rect);
+      CGContextStrokeWidth( context, 1.0);
+      CGContextStrokeColor( context, color);
    }
-   nvgStroke( vg);
+   CGContextStroke( context);
 }
 
 
@@ -38,15 +32,12 @@ static void   drawStuff( CGGraphicsLayer *layer, void *context, BOOL reverse, st
    struct MulleLayout  layout;
    CGRect              container;
    CGRect              rect;
-   NVGcontext          *vg;
-
-   vg = CGContextGetNVGContext( context);
 
    //
    // CGRectMake( 100, 100, 300, 200)
    //
    container = CGRectMake( 0, 0, 300, 150);
-   drawFilledRect( vg, container, CGColorMakeWithRGBA( 0.66, 0.66, 0.66, 0.66));
+   drawFilledRect( context, container, CGColorMakeWithRGBA( 0.66, 0.66, 0.66, 0.66));
 
    if( reverse)
       MulleLayoutInitReverse( &layout, container, MulleEdgeInsetsMake( 10, 15, 20, 25));
@@ -54,19 +45,19 @@ static void   drawStuff( CGGraphicsLayer *layer, void *context, BOOL reverse, st
       MulleLayoutInit( &layout, container, MulleEdgeInsetsMake( 10, 15, 20, 25));
 
    rect = MulleLayoutGetRemainingRowContentRect( &layout);
-   drawStrokedRect( vg, rect, CGColorMakeRed());
+   drawStrokedRect( context, rect, CGColorMakeRed());
 
    rect = MulleLayoutAddToRow( &layout, CGSizeMake( 50, 50), MulleEdgeInsetsMake( 7, 14, 21, 28));
-   drawFilledRect( vg, rect, CGColorMakeWithRGBA( 0.0, 1.0, 0.0, 0.66));
+   drawFilledRect( context, rect, CGColorMakeWithRGBA( 0.0, 1.0, 0.0, 0.66));
 
    rect = MulleLayoutGetRemainingRowContentRect( &layout);
-   drawStrokedRect( vg, rect, CGColorMakeRed());
+   drawStrokedRect( context, rect, CGColorMakeRed());
 
    rect = MulleLayoutAddToRow( &layout, CGSizeMake( 50, 50), insets);
-   drawFilledRect( vg, rect, CGColorMakeWithRGBA( 0.0, 0.0, 1.0, 0.66));
+   drawFilledRect( context, rect, CGColorMakeWithRGBA( 0.0, 0.0, 1.0, 0.66));
 
    rect = MulleLayoutGetRemainingRowContentRect( &layout);
-   drawStrokedRect( vg, rect, CGColorMakeYellow());
+   drawStrokedRect( context, rect, CGColorMakeYellow());
 
    MulleLayoutDone( &layout);
 }

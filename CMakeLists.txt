@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.15)
 
-project( mulle-layout VERSION 0.0.2 LANGUAGES C)
+project( mulle-layout VERSION 0.1.0 LANGUAGES C)
 
 
 ### mulle-sde environment

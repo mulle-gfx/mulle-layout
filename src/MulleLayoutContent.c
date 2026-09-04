@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2021 Nat!, Mulle kybernetiK
+//  MulleLayoutContent.c
+//  mulle-layout
+//
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #include "MulleLayoutContent.h"
 
@@ -22,6 +53,11 @@ CGFloat   CGSizeGetAspectFitFactor( CGSize dstSize, CGSize srcSize)
    CGFloat   srcAspectScale;
    CGFloat   dstAspectScale;
 
+   if( srcSize.width <= 0.0 || srcSize.height <= 0.0)
+      return( 0.0);
+   if( dstSize.width <= 0.0 || dstSize.height <= 0.0)
+      return( 0.0);
+
    srcAspectScale = srcSize.width / srcSize.height;
    dstAspectScale = dstSize.width / dstSize.height;
 
@@ -35,6 +71,11 @@ CGFloat   CGSizeGetAspectFillFactor( CGSize dstSize, CGSize srcSize)
 {
    CGFloat   srcAspectScale;
    CGFloat   dstAspectScale;
+
+   if( srcSize.width <= 0.0 || srcSize.height <= 0.0)
+      return( 0.0);
+   if( dstSize.width <= 0.0 || dstSize.height <= 0.0)
+      return( 0.0);
 
    srcAspectScale = srcSize.width / srcSize.height;
    dstAspectScale = dstSize.width / dstSize.height;
@@ -96,7 +137,7 @@ CGRect  CGSizePlaceInRectWithAspectCorrection( CGSize size, CGRect r, int fill)
 
 CGRect   CGRectPositionInRect( CGRect result, CGRect r, CGContentMode contentMode)
 {
-   assert( contentMode < 0x10);
+   contentMode &= 0xF;
 
    switch( contentMode)
    {
@@ -146,8 +187,10 @@ CGRect   CGRectPositionInRect( CGRect result, CGRect r, CGContentMode contentMod
       result.origin.x = CGRectGetMaxX( r) - result.size.width;
       result.origin.y = CGRectGetMaxY( r) - result.size.height;
       return( result);
+
+   default :
+      return( result);
    }
-   abort();
 }
 
 
@@ -218,147 +261,62 @@ CGAffineTransform   CGAffineTransformMakeWithContentMode( CGContentMode contentM
                                                           CGRect destinationRect,
                                                           CARotation destinationRotation)
 {
-     CGPoint      adjustedTranslate;
-     CGFloat      cosTheta;
-     CGVector     finalScale;
-     CGFloat      radians;
-     CGFloat      scale;
-     CGPoint      rotatedSourceOffset;
-     CGSize       scaledSize;
-     CGVector     scaleRatio;
-     CGFloat      sinTheta;
-     CARotation   totalRotation;
-     CGPoint      translate;
+   CGPoint      adjustedTranslate;
+   CGFloat      cosTheta;
+   CGVector     finalScale;
+   CGRect       placed;
+   CGFloat      radians;
+   CGPoint      rotatedSourceOffset;
+   CGFloat      sinTheta;
+   CARotation   totalRotation;
+   CGPoint      translate;
 
-     scaleRatio = CGVectorMake( destinationRect.size.width / sourceRect.size.width,
-                                destinationRect.size.height / sourceRect.size.height);
+   CGContentModeAssert( contentMode);
 
-     finalScale = CGVectorMake( 1.0, 1.0);
-     translate  = CGPointMake( 0.0, 0.0);
+   //
+   // Use CGSizePlaceInRect to compute the placed rect, which handles all
+   // valid CGContentMode combinations (positioning + scaling).
+   //
+   placed = CGSizePlaceInRect( sourceRect.size, destinationRect, contentMode);
 
-     switch( contentMode)
-     {
-     case CGContentModeScaleToFill:
-        finalScale = scaleRatio;
-        translate  = destinationRect.origin;
-        break;
+   // Derive scale from source size to placed size
+   if( sourceRect.size.width > 0.0 && sourceRect.size.height > 0.0)
+   {
+      finalScale = CGVectorMake( placed.size.width / sourceRect.size.width,
+                                 placed.size.height / sourceRect.size.height);
+   }
+   else
+      finalScale = CGVectorMake( 1.0, 1.0);
 
-     case CGContentModeScaleAspectFit:
-        scale      = CGFloatMinimum( scaleRatio.dx, scaleRatio.dy);
-        finalScale = CGVectorMake( scale, scale);
+   translate = placed.origin;
 
-        scaledSize = CGSizeMake( sourceRect.size.width * scale,
-                                 sourceRect.size.height * scale);
+   // Calculate combined rotation (source rotation + destination rotation)
+   totalRotation = sourceRotation + destinationRotation;
+   radians       = CARotationToRadiansAsRotation( totalRotation);
+   cosTheta      = cosf( radians);
+   sinTheta      = sinf( radians);
 
-        translate = CGPointMake(
-           destinationRect.origin.x + (destinationRect.size.width - scaledSize.width) / 2.0,
-           destinationRect.origin.y + (destinationRect.size.height - scaledSize.height) / 2.0
-        );
-        break;
+   // Account for the source rect origin offset with rotation
+   rotatedSourceOffset = CGPointMake(
+      sourceRect.origin.x * cosTheta - sourceRect.origin.y * sinTheta,
+      sourceRect.origin.x * sinTheta + sourceRect.origin.y * cosTheta
+   );
 
-     case CGContentModeScaleAspectFill:
-        scale      = CGFloatMaximum( scaleRatio.dx, scaleRatio.dy);
-        finalScale = CGVectorMake( scale, scale);
+   adjustedTranslate = CGPointMake(
+      translate.x - rotatedSourceOffset.x * finalScale.dx,
+      translate.y - rotatedSourceOffset.y * finalScale.dy
+   );
 
-        scaledSize = CGSizeMake( sourceRect.size.width * scale,
-                                 sourceRect.size.height * scale);
-
-        translate = CGPointMake(
-           destinationRect.origin.x + (destinationRect.size.width - scaledSize.width) / 2.0,
-           destinationRect.origin.y + (destinationRect.size.height - scaledSize.height) / 2.0
-        );
-        break;
-
-     case CGContentModeCenterPoint:
-        translate = CGPointMake(
-           destinationRect.origin.x + (destinationRect.size.width - sourceRect.size.width) / 2.0,
-           destinationRect.origin.y + (destinationRect.size.height - sourceRect.size.height) / 2.0
-        );
-        break;
-
-     case CGContentModeTop:
-        translate = CGPointMake(
-           destinationRect.origin.x + (destinationRect.size.width - sourceRect.size.width) / 2.0,
-           destinationRect.origin.y
-        );
-        break;
-
-     case CGContentModeBottom:
-        translate = CGPointMake(
-           destinationRect.origin.x + (destinationRect.size.width - sourceRect.size.width) / 2.0,
-           destinationRect.origin.y + destinationRect.size.height - sourceRect.size.height
-        );
-        break;
-
-     case CGContentModeLeft:
-        translate = CGPointMake(
-           destinationRect.origin.x,
-           destinationRect.origin.y + (destinationRect.size.height - sourceRect.size.height) / 2.0
-        );
-        break;
-
-     case CGContentModeRight:
-        translate = CGPointMake(
-           destinationRect.origin.x + destinationRect.size.width - sourceRect.size.width,
-           destinationRect.origin.y + (destinationRect.size.height - sourceRect.size.height) / 2.0
-        );
-        break;
-
-     case CGContentModeTopLeft:
-        translate = destinationRect.origin;
-        break;
-
-     case CGContentModeTopRight:
-        translate = CGPointMake(
-           destinationRect.origin.x + destinationRect.size.width - sourceRect.size.width,
-           destinationRect.origin.y
-        );
-        break;
-
-     case CGContentModeBottomLeft:
-        translate = CGPointMake(
-           destinationRect.origin.x,
-           destinationRect.origin.y + destinationRect.size.height - sourceRect.size.height
-        );
-        break;
-
-     case CGContentModeBottomRight:
-        translate = CGPointMake(
-           destinationRect.origin.x + destinationRect.size.width - sourceRect.size.width,
-           destinationRect.origin.y + destinationRect.size.height - sourceRect.size.height
-        );
-        break;
-     }
-
-     // Calculate combined rotation (source rotation + destination rotation)
-     totalRotation = sourceRotation + destinationRotation;
-     radians       = CARotationToRadiansAsRotation( totalRotation);
-     cosTheta      = cosf( radians);
-     sinTheta      = sinf( radians);
-
-     // Build transform with rotation matrix entries
-     // Account for the source rect origin offset with rotation
-     rotatedSourceOffset = CGPointMake(
-        sourceRect.origin.x * cosTheta - sourceRect.origin.y * sinTheta,
-        sourceRect.origin.x * sinTheta + sourceRect.origin.y * cosTheta
-     );
-
-     adjustedTranslate = CGPointMake(
-        translate.x - rotatedSourceOffset.x * finalScale.dx,
-        translate.y - rotatedSourceOffset.y * finalScale.dy
-     );
-
-     // Create the combined transform with proper rotation matrix entries
-     // Matrix form: [a  b  tx]  where a = cosθ*sx, b = sinθ*sx
-     //              [c  d  ty]        c = -sinθ*sy, d = cosθ*sy
-     //              [0  0  1 ]        tx, ty = translation
-     return( CGAffineTransformMake(
-        cosTheta * finalScale.dx,   // a = cos(θ) * scaleX
-        sinTheta * finalScale.dx,   // b = sin(θ) * scaleX
-        -sinTheta * finalScale.dy,  // c = -sin(θ) * scaleY
-        cosTheta * finalScale.dy,   // d = cos(θ) * scaleY
-        adjustedTranslate.x,        // tx
-        adjustedTranslate.y         // ty
-     ));
+   // Matrix form: [a  b  tx]  where a = cosθ*sx, b = sinθ*sx
+   //              [c  d  ty]        c = -sinθ*sy, d = cosθ*sy
+   //              [0  0  1 ]        tx, ty = translation
+   return( CGAffineTransformMake(
+      cosTheta * finalScale.dx,   // a = cos(θ) * scaleX
+      sinTheta * finalScale.dx,   // b = sin(θ) * scaleX
+      -sinTheta * finalScale.dy,  // c = -sin(θ) * scaleY
+      cosTheta * finalScale.dy,   // d = cos(θ) * scaleY
+      adjustedTranslate.x,        // tx
+      adjustedTranslate.y         // ty
+   ));
 }
 

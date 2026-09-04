@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2021 Nat!, Mulle kybernetiK
+//  MulleLayoutPlacement.h
+//  mulle-layout
+//
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #ifndef mulle_layout_placement_h__
 #define mulle_layout_placement_h__
@@ -20,9 +51,9 @@
 // '-------:-'        '---------'
 //         :          :
 // adjust rect, so that left point is on x
-static inline CGRect   CGRectAlignLeft( CGRect rect, CGFloat y)
+static inline CGRect   CGRectAlignLeft( CGRect rect, CGFloat x)
 {
-   rect.origin.y = y;
+   rect.origin.x = x;
    return( rect);
 }
 
@@ -49,9 +80,9 @@ static inline CGRect   CGRectAlignCenter( CGRect rect, CGFloat x)
 // '-------:-'        '---------'
 //         :                    :
 // adjust rect, so that right point is on x
-static inline CGRect   CGRectAlignRight( CGRect rect, CGFloat y)
+static inline CGRect   CGRectAlignRight( CGRect rect, CGFloat x)
 {
-   rect.origin.y = y - rect.size.width;
+   rect.origin.x = x - rect.size.width;
    return( rect);
 }
 
@@ -203,10 +234,10 @@ typedef uintptr_t    MulleLayoutPlacement;
 //
 enum MulleLayoutVerticalPlacement
 {
-   MulleLayoutPlacementKeepY         = 0,    // aligns bottom of rect with other top
+   MulleLayoutPlacementKeepY         = 0,    // keeps current y position unchanged
    MulleLayoutPlacementUp            = 1,    // aligns bottom of rect with other top
    MulleLayoutPlacementDown          = 2,    // aligns top of rect with other bottom
-   MulleLayoutPlacementMiddle        = 3,    // aligns middle (H) of rect with other middle
+   MulleLayoutPlacementMiddle        = 3,    // aligns middle (V) of rect with other middle
    MulleLayoutPlacementTopAligned    = 4,    // aligns top of rect with other top
    MulleLayoutPlacementBottomAligned = 5     // aligns bottom of rect with other bottom
 };
@@ -215,10 +246,10 @@ typedef uintptr_t    MulleLayoutVerticalPlacement;
 
 enum MulleLayoutHorizontalPlacement
 {
-   MulleLayoutPlacementKeepX         = 0,    // aligns bottom of rect with other top
+   MulleLayoutPlacementKeepX         = 0,    // keeps current x position unchanged
    MulleLayoutPlacementLeft          = 1,    // aligns right edge of rect with other left
    MulleLayoutPlacementRight         = 2,    // aligns left edge of rect with other right
-   MulleLayoutPlacementCenter        = 3,    // aligns center (V) of rect with other center
+   MulleLayoutPlacementCenter        = 3,    // aligns center (H) of rect with other center
    MulleLayoutPlacementLeftAligned   = 4,    // aligns left edge of rect with other left
    MulleLayoutPlacementRightAligned  = 5     // aligns right edge of rect with other right
 };

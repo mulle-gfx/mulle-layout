@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2021 Nat!, Mulle kybernetiK
+//  MulleLayout.c
+//  mulle-layout
+//
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #include "MulleLayout.h"
 
@@ -29,11 +60,16 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
 {
    CGRect   rect;
 
-   if( ! p)
-      return( CGRectNull);
 // 
 //   if( size.width == 0.0)  // don't want to dirty rect.origin.y then ...
 //      return( CGRectNull);
+
+   if( p->vertical)
+   {
+      size    = CGSizeMake( size.height, size.width);
+      margins = MulleEdgeInsetsMake( margins.left, margins.top,
+                                     margins.right, margins.bottom);
+   }
 
    if( p->reverse)
       margins = MulleEdgeInsetsMake( margins.top, 
@@ -46,7 +82,7 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
                       ? margins.top
                       : p->margins.top;
    rect.origin.y = CGRectGetMinY( p->rect) + margins.top;
-   if( CGRectGetMaxY( rect) > CGRectGetMaxY( p->originalRect))
+   if( CGRectGetMaxY( rect) > CGRectGetMaxY( p->originalRect) - p->originalMargins.bottom)
       return( CGRectNull);
 
    // use larger margin for horizontal check
@@ -56,8 +92,11 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
 
    //
    // check that we don't extend over space, we only check against original
-   // margins here, so that we can use the full "usable" width
-   // The right margin of the rect is ignored.... hmmmm
+   // margins here, so that we can use the full "usable" width.
+   // The right margin of the item is intentionally not checked here — only
+   // the frame's right inset limits placement.  This is asymmetric but
+   // deliberate: the item's right margin only contributes to the gap before
+   // the next item, not to the boundary check.
    //
    if( CGRectGetMaxX( rect) > CGRectGetMaxX( p->originalRect) - p->originalMargins.right)
       return( CGRectNull);
@@ -80,6 +119,9 @@ CGRect   _MulleLayoutAddToRow( struct MulleLayout *p,
 
    if( p->reverse)
       rect = CGRectMirrorInRectH( rect, p->originalRect);
+   if( p->vertical)
+      rect = CGRectMake( rect.origin.y, rect.origin.x,
+                         rect.size.height, rect.size.width);
    return( rect);
 }
 
@@ -90,12 +132,12 @@ CGRect   _MulleLayoutAddToRowWithOverflow( struct MulleLayout *p,
 {
    CGRect   rect;
 
-   rect = MulleLayoutAddToRow( p, size, margins);
-   if( rect.size.width != 0.0)
+   rect = _MulleLayoutAddToRow( p, size, margins);
+   if( ! CGRectIsNull( rect))
       return( rect);
 
-   MulleLayoutNewRow( p);
-   rect = MulleLayoutAddToRow( p, size, margins);
+   _MulleLayoutNewRow( p);
+   rect = _MulleLayoutAddToRow( p, size, margins);
    return( rect);
 }
 
@@ -115,6 +157,8 @@ CGRect   _MulleLayoutAddRowWithHeight( struct MulleLayout *p,
    actualMargins = MulleEdgeInsetsUnion( margins, p->originalMargins);
    hMargin       = actualMargins.left + actualMargins.right;
    w             = p->originalRect.size.width - hMargin;
+   if( w <= 0.0)
+      return( CGRectNull);
 
    rect = _MulleLayoutAddToRow( p, CGSizeMake( w, h), margins);
 
@@ -158,8 +202,11 @@ CGRect   _MulleLayoutGetRowContentRect( struct MulleLayout *p)
    CGRect   rect;
 
    rect = p->rect;
-    if( p->reverse)
+   if( p->reverse)
       rect = CGRectMirrorInRectH( rect, p->originalRect);
+   if( p->vertical)
+      rect = CGRectMake( rect.origin.y, rect.origin.x,
+                         rect.size.height, rect.size.width);
    return( rect);
 }
 
@@ -173,10 +220,12 @@ CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
    {
       rect.origin.x    = CGRectGetMaxX( p->rect) + p->margins.left;
       rect.origin.y    = p->originalRect.origin.y + p->originalMargins.top;
-      rect.size.width  = (CGRectGetMaxX( p->originalRect) - p->originalMargins.right) - (CGRectGetMaxX( p->rect) + p->margins.left);
-      rect.size.height = (CGRectGetMaxY( p->originalRect) - p->originalMargins.bottom) - (CGRectGetMinY( p->originalRect) + p->originalMargins.top);
+      rect.size.width  = (CGRectGetMaxX( p->originalRect) - p->originalMargins.right)
+                         - rect.origin.x;
+      rect.size.height = (CGRectGetMaxY( p->originalRect) - p->originalMargins.bottom)
+                         - (CGRectGetMinY( p->originalRect) + p->originalMargins.top);
    }
-   else      
+   else
    {
       rect.origin = MulleEdgeInsetsInsetPoint( p->originalMargins, p->originalRect.origin);
       rect.size   = MulleEdgeInsetsInsetSize( p->originalMargins, p->originalRect.size);
@@ -191,6 +240,48 @@ CGRect   _MulleLayoutGetRemainingRowContentRect( struct MulleLayout *p)
 
    if( p->reverse)
       rect = CGRectMirrorInRectH( rect, p->originalRect);
+   if( p->vertical)
+      rect = CGRectMake( rect.origin.y, rect.origin.x,
+                         rect.size.height, rect.size.width);
    return( rect);
 }
 
+
+
+CGRect   _MulleLayoutGetUsedRect( struct MulleLayout *p)
+{
+   CGRect    rect;
+   CGFloat   contentX;
+   CGFloat   contentWidth;
+   CGFloat   maxY;
+
+   contentX     = p->originalRect.origin.x + p->originalMargins.left;
+   contentWidth = p->originalRect.size.width
+                  - p->originalMargins.left
+                  - p->originalMargins.right;
+
+   // p->rect.origin.y accumulates completed rows; adding size.height
+   // gives the bottom of the current row's items
+   maxY = CGRectGetMaxY( p->rect);
+
+   // nothing placed yet
+   if( p->rect.size.width == 0.0 && p->rect.origin.y == p->originalRect.origin.y)
+      return( CGRectZero);
+
+   rect.origin.x    = contentX;
+   rect.origin.y    = p->originalRect.origin.y + p->originalMargins.top;
+   rect.size.width  = contentWidth;
+   rect.size.height = maxY - rect.origin.y;
+
+   if( rect.size.width < 0.0)
+      rect.size.width = 0.0;
+   if( rect.size.height < 0.0)
+      rect.size.height = 0.0;
+
+   if( p->reverse)
+      rect = CGRectMirrorInRectH( rect, p->originalRect);
+   if( p->vertical)
+      rect = CGRectMake( rect.origin.y, rect.origin.x,
+                         rect.size.height, rect.size.width);
+   return( rect);
+}

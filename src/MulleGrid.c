@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2022 Nat!, Mulle kybernetiK
+//  MulleGrid.c
+//  mulle-layout
+//
+//  Copyright (c) 2022 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #include "MulleGrid.h"
 
@@ -13,7 +44,7 @@ enum
    MulleGridStateItemWidth    = 0x4,
    MulleGridStateItemHeight   = 0x8,
    MulleGridStateCanvasWidth  = 0x10,
-   MulleGridStateCanvasHeight = 0x18
+   MulleGridStateCanvasHeight = 0x20
 };
 
 
@@ -43,25 +74,43 @@ static void   _MulleGridComputeItemSize( struct MulleGrid *p, CGRect insetCanvas
 
 static void   _MulleGridComputeColumns( struct MulleGrid *p, CGRect insetCanvas)
 {
-   assert( p->itemSize.width + p->spacing.width > 0.0);
+   CGFloat   value;
+
+   if( p->itemSize.width + p->spacing.width <= 0.0)
+   {
+      p->columns = 0;
+      return;
+   }
 
    if( isinf( insetCanvas.size.width))
       p->columns = 0;
    else
-      p->columns = (uintptr_t) floor( (insetCanvas.size.width + p->spacing.width) /
-                                      (p->itemSize.width + p->spacing.width));
+   {
+      value = floor( (insetCanvas.size.width + p->spacing.width) /
+                     (p->itemSize.width + p->spacing.width));
+      p->columns = value > 0.0 ? (uintptr_t) value : 0;
+   }
 }
 
 
 static void   _MulleGridComputeRows( struct MulleGrid *p, CGRect insetCanvas)
 {
-   assert( p->itemSize.height + p->spacing.height > 0.0);
+   CGFloat   value;
+
+   if( p->itemSize.height + p->spacing.height <= 0.0)
+   {
+      p->rows = 0;
+      return;
+   }
 
    if( isinf( insetCanvas.size.height))
       p->rows = 0;
    else
-      p->rows = (uintptr_t) floor( (insetCanvas.size.height + p->spacing.height) /
-                                   (p->itemSize.height + p->spacing.height));
+   {
+      value = floor( (insetCanvas.size.height + p->spacing.height) /
+                     (p->itemSize.height + p->spacing.height));
+      p->rows = value > 0.0 ? (uintptr_t) value : 0;
+   }
 }
 
 
@@ -107,79 +156,72 @@ static void   _MulleGridComputeItemSizeAndRowsColumns( struct MulleGrid *p,
                                                        CGRect insetCanvas,
                                                        uintptr_t numberOfItems)
 {
-   CGFloat     aspectRatio;
    uintptr_t   bestColumns;
    CGSize      bestItemSize;
    uintptr_t   bestRows;
-   CGFloat     bestUtilization;
-   CGFloat     canvasArea;
+   CGFloat     bestScore;
    uintptr_t   cols;
-   int         direction;
-   CGFloat     itemArea;
+   CGFloat     itemAspect;
    CGSize      itemSize;
-   uintptr_t   maxColumns;
-   uintptr_t   minColumns;
-   CGFloat     prevUtilization;
    uintptr_t   rows;
-   uintptr_t   startColumn;
-   CGFloat     totalItemArea;
+   CGFloat     score;
    CGFloat     utilization;
 
    numberOfItems = numberOfItems ? numberOfItems : 1;
-   minColumns    = 1;
-   maxColumns    = numberOfItems;
 
-   aspectRatio      = insetCanvas.size.width / insetCanvas.size.height;
-   canvasArea       = insetCanvas.size.width * insetCanvas.size.height;
-   bestUtilization  = 0;
-   bestColumns      = 1;
-   bestRows         = 1;
-   bestItemSize     = insetCanvas.size;
-
-   if( numberOfItems > 1)
+   // guard: degenerate canvas can't produce a valid grid
+   if( insetCanvas.size.width <= 0.0 || insetCanvas.size.height <= 0.0
+       || isinf( insetCanvas.size.width) || isinf( insetCanvas.size.height))
    {
-      startColumn = (uintptr_t) sqrt( numberOfItems * aspectRatio);
-      startColumn = startColumn < 1 ? 1 : (startColumn > numberOfItems ? numberOfItems : startColumn);
+      p->columns         = 0;
+      p->rows            = 0;
+      p->itemSize.width  = -1.0;
+      p->itemSize.height = -1.0;
+      return;
+   }
 
-      direction        = -1;
-      cols             = startColumn;
-      prevUtilization  = 0;
+   bestScore    = -1.0;
+   bestColumns  = 1;
+   bestRows     = numberOfItems;
+   bestItemSize = CGSizeMake( insetCanvas.size.width,
+                              (insetCanvas.size.height - (numberOfItems - 1) * p->spacing.height)
+                              / numberOfItems);
 
-      while( cols >= minColumns && cols <= maxColumns)
+   //
+   // Exhaustive search over all valid column counts.
+   // Score prefers square items (aspect close to 1.0) and high utilization.
+   //
+   for( cols = 1; cols <= numberOfItems; cols++)
+   {
+      rows = (numberOfItems + cols - 1) / cols;
+      if( ! rows)
+         rows = 1;
+
+      itemSize.width  = (insetCanvas.size.width - (cols - 1) * p->spacing.width) / cols;
+      itemSize.height = (insetCanvas.size.height - (rows - 1) * p->spacing.height) / rows;
+
+      // skip degenerate candidates where spacing exceeds canvas
+      if( itemSize.width <= 0.0 || itemSize.height <= 0.0)
+         continue;
+
+      // utilization: fraction of canvas covered by items
+      utilization = (itemSize.width * itemSize.height * numberOfItems)
+                    / (insetCanvas.size.width * insetCanvas.size.height);
+
+      // item aspect ratio closeness to 1.0 (square), range (0..1]
+      itemAspect = itemSize.width / itemSize.height;
+      if( itemAspect > 1.0)
+         itemAspect = 1.0 / itemAspect;
+
+      // combined score: both factors in [0..1], weighted equally
+      score = utilization * 0.5 + itemAspect * 0.5;
+
+      if( score > bestScore)
       {
-         rows = (numberOfItems + cols - 1) / cols;
-         if( ! rows)
-            rows = 1;
-         itemSize.width  = (insetCanvas.size.width - (cols - 1) * p->spacing.width) / cols;
-         itemSize.height = (insetCanvas.size.height - (rows - 1) * p->spacing.height) / rows;
-
-         itemArea      = itemSize.width * itemSize.height;
-         totalItemArea = itemArea * numberOfItems;
-         utilization   = totalItemArea / canvasArea;
-
-         if( utilization > bestUtilization)
-         {
-            bestUtilization = utilization;
-            bestColumns     = cols;
-            bestRows        = rows;
-            bestItemSize    = itemSize;
-         }
-
-         if( utilization < prevUtilization)
-         {
-            if( direction == -1)
-            {
-               direction = 1;
-               cols      = startColumn + 1;
-            }
-            else
-            {
-               break;
-            }
-         }
-
-         prevUtilization = utilization;
-         cols           += direction;
+         bestScore    = score;
+         bestColumns  = cols;
+         bestRows     = rows;
+         bestItemSize = itemSize;
       }
    }
 
@@ -350,7 +392,10 @@ int   _MulleGridConstruct( struct MulleGrid *p,
 
    if( numberOfItems != 0)
    {
-      p->rows = (uintptr_t) ceilf( n / p->columns);
+      // only recompute rows if the caller did not specify them,
+      // or if columns were also caller-specified (grid can grow vertically)
+      if( (*state & MulleGridStateRows) || ! (*state & MulleGridStateColumns))
+         p->rows = (uintptr_t) ceilf( n / p->columns);
    }
 
    // from here on, this can't really fail, its more for documentation and
@@ -417,8 +462,8 @@ CGFloat   _MulleGridGetColumnX( struct MulleGrid *p, uintptr_t column)
    CGFloat   x;
 
    if( column == 0)
-      return( p->canvas.origin.y);
-   if( column >= p->columns)
+      return( p->canvas.origin.x);
+   if( column == p->columns)
       return( CGRectGetMaxX( p->canvas));
    if( column > p->columns)
       return( NAN);
@@ -526,3 +571,53 @@ CGRect   _MulleGridGetItemRect( struct MulleGrid *p,
 //
 //    _MulleGridVerify( p);
 // }
+
+
+struct MulleGridPosition   _MulleGridGetPositionAtPoint( struct MulleGrid *p,
+                                                          CGPoint point,
+                                                          uintptr_t numberOfItems)
+{
+   CGFloat     x;
+   CGFloat     y;
+   CGFloat     cellWidth;
+   CGFloat     cellHeight;
+   intptr_t    col;
+   intptr_t    row;
+   intptr_t    index;
+
+   // offset relative to content area (canvas + insets)
+   x = point.x - (p->canvas.origin.x + p->insets.left);
+   y = point.y - (p->canvas.origin.y + p->insets.top);
+
+   if( x < 0.0f || y < 0.0f)
+      return( MulleGridPositionInvalid);
+
+   cellWidth  = p->itemSize.width + p->spacing.width;
+   cellHeight = p->itemSize.height + p->spacing.height;
+
+   if( cellWidth <= 0.0f || cellHeight <= 0.0f)
+      return( MulleGridPositionInvalid);
+
+   col = (intptr_t) (x / cellWidth);
+   row = (intptr_t) (y / cellHeight);
+
+   // check within item bounds (not in the spacing)
+   if( x - col * cellWidth > p->itemSize.width)
+      return( MulleGridPositionInvalid);
+   if( y - row * cellHeight > p->itemSize.height)
+      return( MulleGridPositionInvalid);
+
+   if( col < 0 || (uintptr_t) col >= p->columns)
+      return( MulleGridPositionInvalid);
+   if( row < 0 || (uintptr_t) row >= p->rows)
+      return( MulleGridPositionInvalid);
+
+   if( numberOfItems)
+   {
+      index = row * (intptr_t) p->columns + col;
+      if( (uintptr_t) index >= numberOfItems)
+         return( MulleGridPositionInvalid);
+   }
+
+   return( MulleGridPositionMake( row, col));
+}

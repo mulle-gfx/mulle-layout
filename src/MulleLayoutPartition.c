@@ -1,5 +1,36 @@
 //
-// Copyright (c) 2021 Nat!, Mulle kybernetiK
+//  MulleLayoutPartition.c
+//  mulle-layout
+//
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #include "MulleLayoutPartition.h"
 
@@ -35,6 +66,8 @@ void   CGRectPartitionVertically( CGRect frame,
    q->origin      = frame.origin;
    q->size.width  = frame.size.width;
    q->size.height = (frame.size.height - (n - 1) * space) / n;
+   if( q->size.height < 0.0)
+      q->size.height = 0.0;
 
    p        = q + 1;
    sentinel = &q[ n];
@@ -77,6 +110,8 @@ void   CGRectPartitionHorizontally( CGRect frame,
    q              = rects;
    q->origin      = frame.origin;
    q->size.width  = (frame.size.width - (n - 1) * space) / n;
+   if( q->size.width < 0.0)
+      q->size.width = 0.0;
    q->size.height = frame.size.height;
 
    p        = q + 1;
@@ -131,65 +166,59 @@ int   CGRectSubdivideIfOverlap( CGRect rect, CGRect other, CGRect output[ 4])
    extent = CGRectGetHeight( rect);
    width  = CGRectGetWidth( rect);
 
-   if( width > 0.0f && extent > 0.0f)
+   if( ! (width > 0.0f && extent > 0.0f))
+      return( -1);
+
+   if( ! CGRectIntersectsRect( rect, other))
+      return( -1);
+
+   top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
+   bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
+
+   left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
+   right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
+
+   //
+   //    000000000  rect
+   //    111111111
+   //    111111111  other
+   //
+   if( top_margin > 0.0)
    {
-      if( ! CGRectIntersectsRect( rect, other))
-         return( -1);
+      output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                 CGRectGetMinY( rect),
+                                 width,
+                                 top_margin);
+      extent -= top_margin;
+   }
+   else
+      top_margin = 0.0;
 
-      top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
-      bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
+   if( bottom_margin > 0.0)
+   {
+      output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                 CGRectGetMaxY( rect) - bottom_margin,
+                                 width,
+                                 bottom_margin);
+      extent -= bottom_margin;
+   }
 
-      left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
-      right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
-
-      //
-      //    000000000  rect
-      //    111111111
-      //    111111111  other
-      //
-      if( top_margin > 0.0)
+   if( extent > 0.0)
+   {
+      if( left_margin > 0.0)
       {
-         if( width > 0.0)
-         {
-            output[ i++] = CGRectMake( CGRectGetMinX( rect),
-                                       CGRectGetMinY( rect),
-                                       width,
-                                       top_margin);
-         }
-         extent -= top_margin;
-      }
-      else
-         top_margin = 0.0;
-
-      if( bottom_margin > 0.0)
-      {
-         if( width > 0.0)
-         {
-            output[ i++] = CGRectMake( CGRectGetMinX( rect),
-                                       CGRectGetMaxY( rect) - bottom_margin,
-                                       width,
-                                       bottom_margin);
-         }
-         extent -= bottom_margin;
+         output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                    CGRectGetMinY( rect) + top_margin,
+                                    left_margin,
+                                    extent);
       }
 
-      if( extent > 0.0)
+      if( right_margin > 0.0)
       {
-         if( left_margin > 0.0)
-         {
-            output[ i++] = CGRectMake( CGRectGetMinX( rect),
-                                       CGRectGetMinY( rect) + top_margin,
-                                       left_margin,
-                                       extent);
-         }
-
-         if( right_margin > 0.0)
-         {
-            output[ i++] = CGRectMake( CGRectGetMaxX( rect) - right_margin,
-                                       CGRectGetMinY( rect) + top_margin,
-                                       right_margin,
-                                       extent);
-         }
+         output[ i++] = CGRectMake( CGRectGetMaxX( rect) - right_margin,
+                                    CGRectGetMinY( rect) + top_margin,
+                                    right_margin,
+                                    extent);
       }
    }
 
@@ -203,7 +232,7 @@ unsigned int   CGRectSubdivide( CGRect rect, CGRect other, CGRect output[ 4])
    int   i;
 
    i = CGRectSubdivideIfOverlap( rect, other, output);
-   if( i <= 0)
+   if( i == -1)
    {
       output[ 0] = rect;
       return( 1);
@@ -222,7 +251,7 @@ void   CGRectPartitionIntoRowsAndColumns( CGRect frame,
    CGRect         *columns;
    unsigned int   i;
 
-   if( ! rects)
+   if( ! rects || ! rowSize || ! columnSize)
       return;
 
    // put at end of rects
@@ -336,6 +365,15 @@ void   CGRectDivide( CGRect rect,
             }
             break;
         default:
-            abort();
+            // handle edge == 0 as MinXEdge for Apple CoreGraphics compatibility
+            amount = (amount > rect.size.width) ? rect.size.width : amount;
+            remainder->origin.x += amount;
+            if (amount >= rect.size.width) {
+                remainder->size.width = 0;
+            } else {
+                slice->size.width = amount;
+                remainder->size.width -= amount;
+            }
+            break;
     }
 }
