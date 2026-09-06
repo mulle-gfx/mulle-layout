@@ -6,8 +6,8 @@
 **mulle-layout** provides functions for manual layouting of rectangles in 2D space. It offers a comprehensive set of tools for positioning, sizing, and arranging rectangular UI elements in a precise, programmatic way without automatic layout engines. The library is designed for graphics and UI applications where fine-grained control over element placement is required.
 
 Key features include:
-- **Row-based layout system**: Place rectangles left-to-right in rows with margin handling
-- **Grid layout**: Arrange elements in uniform grids with automatic calculations
+- **Row/column layout system**: Place rectangles left-to-right in rows (or top-to-bottom in columns) with margin handling, both in normal and reverse (right-to-left) direction
+- **Grid layout**: Arrange elements in uniform grids with automatic calculations, plus hit-testing of points to grid cells
 - **Content modes**: Position and scale rectangles within other rectangles (similar to UIView contentMode)
 - **Partitioning**: Divide rectangles into smaller sections horizontally, vertically, or in 2D grids
 - **Placement**: Position rectangles adjacent to other rectangles with various alignment options
@@ -41,7 +41,9 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 - **Immediate Mode**: Layout calculations are performed immediately and results are returned as CGRect values.
 - **No Constraints**: Unlike Auto Layout, there's no constraint solver—layouts are calculated directly.
 - **Overflow Handling**: Functions explicitly handle or report overflow conditions (e.g., when content doesn't fit).
-- **Reverse Layout**: Support for right-to-left layout flows through reverse initialization.
+- **Reverse Layout**: Support for right-to-left layout flows through reverse initialization (`MulleLayoutInitReverse`).
+- **Vertical Layout**: Support for top-to-bottom, column-filling layout via `MulleLayoutInitVertical`, which transposes the frame and reuses the horizontal row logic.
+- **Grid Hit-Testing**: `MulleGrid` supports locating the grid cell at an arbitrary point, with row/column resolution down to individual items.
 
 ## 3. Core API & Data Structures
 
@@ -93,10 +95,10 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 #### `struct MulleCornerInsets`
 - **Purpose:** Represents corner radii for rounded rectangles (compatible with nanovg).
 - **Key Fields:**
-  - `float topLeft`: Top-left corner radius
-  - `float topRight`: Top-right corner radius
-  - `float bottomRight`: Bottom-right corner radius
-  - `float bottomLeft`: Bottom-left corner radius
+  - `CGFloat topLeft`: Top-left corner radius
+  - `CGFloat topRight`: Top-right corner radius
+  - `CGFloat bottomRight`: Bottom-right corner radius
+  - `CGFloat bottomLeft`: Bottom-left corner radius
 
 #### Lifecycle Functions
 - `MulleCornerInsetsMake(topLeft, topRight, bottomRight, bottomLeft)`: Standard constructor (nanovg order)
@@ -116,11 +118,14 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
     - `CGContentModeTop`, `CGContentModeTopRight`, `CGContentModeRight`, `CGContentModeBottomRight`, `CGContentModeBottom`, `CGContentModeBottomLeft`, `CGContentModeLeft`, `CGContentModeTopLeft`
     - `CGContentModeCenterPoint`: Center in both dimensions
   - **Scaling:**
-    - `CGContentModeScaleToFill`: Stretch to fill (default, both dimensions)
-    - `CGContentModeScaleToFillHorizontal`: Stretch horizontally only
-    - `CGContentModeScaleToFillVertical`: Stretch vertically only
+    - `CGContentModeDefault`: 0x0, default mode (interpreted as scale-to-fill)
+    - `CGContentModeScaleToFill`: Stretch to fill, both dimensions. Can be combined with `CGContentModeTop`, `CGContentModeLeft`, etc. for anchoring
+    - `CGContentModeScaleToFillHorizontal`: Stretch horizontally only (mixable with vertical position bits)
+    - `CGContentModeScaleToFillVertical`: Stretch vertically only (mixable with horizontal position bits)
     - `CGContentModeScaleAspectFit`: Scale to fit inside, maintain aspect ratio
     - `CGContentModeScaleAspectFill`: Scale to fill, maintain aspect ratio (may crop)
+    - `CGContentModeScaleAspect`: Alias for `CGContentModeScaleAspectFit`
+    - `CGContentModeCenter`: Backwards-compatibility alias for `CGContentModeCenterPoint`
 
 #### Core Operations
 - `CGSizePlaceInRect(size, rect, contentMode)`: Position and scale a size within a rect using contentMode
@@ -178,10 +183,10 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 - `MulleLayoutPlacementData(h, v)`: Static initializer macro for placement constants
 - `MulleLayoutPlacementGetHorizontalPlacement(value)`: Extract horizontal component
 - `MulleLayoutPlacementGetVerticalPlacement(value)`: Extract vertical component
-- `CGRectPlaceNextToRect(rect, other, placement)`: Position rect adjacent to other using placement
-- `CGRectPlaceNextToRectInSpace(rect, other, space, preferences, n_preferences)`: Find best placement within space from preference list
-- `CGRectFindBestPlacementNextToRectInSpace(rect, other, space, preferences, n_preferences)`: Return index of best placement
-- `CGSizePlaceAdjacentToRectInSpace(menuSize, buttonFrame, space, preferences, n_preferences)`: Place menu-like rect adjacent to button
+- `CGRectPlaceNextToRect(rect, other, placement)`: Position rect adjacent to other using placement; returns the new origin as a `CGPoint`
+- `CGRectPlaceNextToRectInSpace(rect, other, space, preferences, n_preferences)`: Find best placement within space from preference list; returns the new origin as a `CGPoint`. Passing `NULL` preferences uses a default scheme; pass non-NULL with `n_preferences` = 0 to disable the default scheme
+- `CGRectFindBestPlacementNextToRectInSpace(rect, other, space, preferences, n_preferences)`: Return index of best placement (same preference NULL/0 semantics)
+- `CGSizePlaceAdjacentToRectInSpace(menuSize, buttonFrame, space, preferences, n_preferences)`: Place menu-like rect adjacent to button, returns resulting `CGRect`
 
 #### Simple Placement Utilities
 - `CGRectPlaceBeforeRect(rect, spacing, width)`: Place rect before (left of) another
@@ -225,24 +230,26 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 ### 3.6. `MulleLayout.h`
 
 #### `struct MulleLayout`
-- **Purpose:** State management for row-based layout (similar to flexbox, row direction only).
+- **Purpose:** State management for row- or column-based layout (similar to flexbox row/column direction).
 - **Key Fields:**
   - `CGRect originalRect`: Initial layout bounds
   - `MulleEdgeInsets originalMargins`: Initial margins
   - `CGRect rect`: Current row bounding rect (grows as items are added)
   - `MulleEdgeInsets margins`: Current row margins
   - `int reverse`: Flag for right-to-left layout
+  - `int vertical`: Flag for top-to-bottom (column) layout
 
 #### Lifecycle Functions
 - `MulleLayoutInit(p, rect, margins)`: Initialize for left-to-right layout
 - `MulleLayoutInitReverse(p, rect, margins)`: Initialize for right-to-left layout
+- `MulleLayoutInitVertical(p, rect, margins)`: Initialize for vertical layout. Items fill top-to-bottom, wrapping to a new column when the height is exhausted. Internally the frame is transposed so the horizontal row logic operates on the vertical axis.
 - `MulleLayoutDone(p)`: Cleanup (currently no-op, reserved for future use)
 
 #### Core Operations
 - `MulleLayoutAddToRow(p, size, margins)`: Add rect of given size to current row with margins
   - Returns `CGRectNull` if it doesn't fit (time for new row)
   - Returns positioned CGRect if successful
-- `MulleLayoutAddToRowWithOverflow(p, size, margins)`: Add rect even if it overflows bounds
+- `MulleLayoutAddToRowWithOverflow(p, size, margins)`: Add rect to current row; if it doesn't fit, automatically start a new row and retry. Returns the layouted rect, or `CGRectNull` if it still doesn't fit in the fresh row
 - `MulleLayoutAddRowWithHeight(p, h, margins)`: Add full-width row of specific height
 - `MulleLayoutNewRow(p)`: Finish current row and start a new one below it
 
@@ -253,6 +260,9 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 - `MulleLayoutGetRowContentOrigin(p)`: Get origin of current row content
 - `MulleLayoutGetRemainingRowContentRect(p)`: Get available space remaining in current row
 - `MulleLayoutGetRemainingRowContentSize(p)`: Get size of remaining space
+- `MulleLayoutGetRemainingRowContentOrigin(p)`: Get origin of remaining space
+- `MulleLayoutGetUsedRect(p)`: Get bounding box of all placed items across all rows. Width spans the full content width (frame minus left/right insets); height covers from content top to the bottom of the current row's items. Returns `CGRectZero` if nothing has been placed. Use for scroll-view content size or sizeToFit calculations.
+- `MulleLayoutGetUsedSize(p)`: Get size of the used rect (convenience wrapper over `MulleLayoutGetUsedRect`)
 - `MulleLayoutIsEmptyRow(p)`: Check if current row has no items
 
 ### 3.7. `MulleGrid.h`
@@ -281,10 +291,24 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 - `MulleGridVerify(p)`: Verify grid constraints
 
 #### Core Operations
-- `MulleGridGetItemRect(p, row, column)`: Get rect for item at specific row/column
-- `MulleGridGetItemRectAtIndex(p, i)`: Get rect for item at linear index
-- `MulleGridGetColumnX(p, column)`: Get x-coordinate of column
-- `MulleGridGetRowY(p, row)`: Get y-coordinate of row
+- `MulleGridGetItemRect(p, row, column)`: Get rect for item at specific row/column (returns `CGRectNull` if row/column out of range)
+- `MulleGridGetItemRectAtIndex(p, i)`: Get rect for item at linear index (returns `CGRectNull` if `p` is NULL or columns is 0)
+- `MulleGridGetColumnX(p, column)`: Get x-coordinate of column. Column `0` returns canvas x, column `columns` returns canvas max-x, out-of-range returns `NAN`
+- `MulleGridGetRowY(p, row)`: Get y-coordinate of row. Mirrors `MulleGridGetColumnX`
+- `MulleGridGetCapacity(p)`: Get total number of item slots (`rows * columns`). Returns 0 for an unconstructed or invalid grid
+
+#### Hit-Testing
+##### `struct MulleGridPosition`
+- **Purpose:** Grid position (row, column) of an item, used for hit-testing a point against the grid.
+- **Key Fields:**
+  - `intptr_t row`: Row index, or -1 when the point doesn't hit any item
+  - `intptr_t column`: Column index, or -1 when the point doesn't hit any item
+
+- `MulleGridPositionMake(r, c)`: Designated-initializer macro to build a position
+- `MulleGridPositionInvalid`: Constant `MulleGridPositionMake(-1, -1)`
+- `MulleGridPositionIsValid(pos)`: Check that both row and column are >= 0
+- `MulleGridGetPositionAtPoint(p, point, numberOfItems)`: Return grid position of the item at `point`. Returns `MulleGridPositionInvalid` if the point is in spacing, insets, out of bounds, or (if `numberOfItems` > 0) beyond the item count
+- `MulleGridGetIndexAtPoint(p, point, numberOfItems)`: Linear index version of `MulleGridGetPositionAtPoint`. Returns -1 if the point doesn't hit any item
 
 ## 4. Performance Characteristics
 
@@ -358,7 +382,7 @@ This library is a component of the **mulle-gfx** framework and depends on **mull
 
 4. **Don't mix coordinate systems**: Ensure all rects use the same coordinate system (mulle-layout doesn't track origins).
 
-5. **Don't assume overflow behavior**: Use `AddToRowWithOverflow` explicitly if you want to allow overflow.
+5. **Read the docs on overflow**: `MulleLayoutAddToRow` returns `CGRectNull` when an item doesn't fit — that's the signal to call `MulleLayoutNewRow()`. `MulleLayoutAddToRowWithOverflow` wraps this by starting a row for you, but it doesn't make items overlap the frame.
 
 6. **Validate content modes**: Use `CGContentModeIsValid()` before using user-provided modes.
 
@@ -624,6 +648,65 @@ void   draw_card( CGRect bounds)
    // Draw card background with rounded corners using corners
    // Draw title in titleRect
    // Draw body in bodyRect
+}
+```
+
+### Example 8: Grid Hit-Testing with MulleGridPosition
+
+```c
+#include <mulle-layout/mulle-layout.h>
+
+// Returns the index of the grid item at `point`, or -1 when the point
+// is in spacing, insets, or out of bounds.
+intptr_t   hit_test_grid( struct MulleGrid *grid, CGPoint point, uintptr_t itemCount)
+{
+   intptr_t   index;
+
+   index = MulleGridGetIndexAtPoint( grid, point, itemCount);
+   if( index < 0)
+      return( -1);
+
+   return( index);
+}
+
+// Alternatively use the row/column variant directly.
+void   hit_test_grid_row_column( struct MulleGrid *grid, CGPoint point)
+{
+   struct MulleGridPosition   pos;
+
+   pos = MulleGridGetPositionAtPoint( grid, point, 0);
+   if( MulleGridPositionIsValid( pos))
+   {
+      // item at pos.row / pos.column was clicked
+   }
+}
+```
+
+### Example 9: Vertical Column Layout
+
+```c
+#include <mulle-layout/mulle-layout.h>
+
+void   layout_vertical( CGRect bounds)
+{
+   struct MulleLayout  layout;
+   CGRect              itemRect;
+   uintptr_t           i;
+
+   // Fill top-to-bottom, wrapping into a new column when height is exhausted
+   MulleLayoutInitVertical( &layout, bounds, MulleEdgeInsetsMake( 10, 10, 10, 10));
+
+   for( i = 0; i < 6; i++)
+   {
+      itemRect = MulleLayoutAddToRow( &layout, CGSizeMake( 100, 40), MulleEdgeInsetsZero);
+      if( CGRectIsNull( itemRect))
+      {
+         MulleLayoutNewRow( &layout);
+         itemRect = MulleLayoutAddToRow( &layout, CGSizeMake( 100, 40), MulleEdgeInsetsZero);
+      }
+   }
+
+   MulleLayoutDone( &layout);
 }
 ```
 

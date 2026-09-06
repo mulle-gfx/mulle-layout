@@ -2,35 +2,210 @@
 
 #### 📏 Rectangle geometry and manual layouting
 
-This library contains functions for manual layouting of rectangles.
+# mulle-layout Semantic Model
 
-| Datatype             | Description                                                      |
-|----------------------|------------------------------------------------------------------|
-| `CGRectEdge`         | legacy compatibility enum for CADirection                        |
-| `CGContentMode`      | an enumeration of various placements like `CGContentModeTopLeft` |
-| `struct MulleLayout` | layout rectangles in row column fashion                          |
-| `struct MulleGrid`   | layout rectangles in a uniform grid                              |
+## Overview
 
-
-
-![Demo Screenshot](demo/layout.png)
-
-Here you can see a demo of the library in action. The available window space
-is split into vertical and horizontal slices using "partitioning".
-
-In the first row you see "contentMode" examples of a rectangle inside
-another rectangle.
-
-In the second and third row, you see "placement" of a rectangle with fixed
-size relative to another rectangle of fixed size.
-
-The fourth row, shows "placement" of a rectangle of "flexible" size
-relative to another rectangle of fixed size.
-
-The last row, shows the "layout" code, placing rectangles in column first,
-then row fashion.
+`mulle-layout` is an allocation-free, immediate-mode rectangle layout library.
+Layout state lives in a single stack struct (`struct MulleLayout` or
+`struct MulleGrid`). There is no node tree, no constraint solver, and no
+heap allocation.
 
 
+## MulleLayout — Row-based layout
+
+### The frame and its insets
+
+```
+         originalRect
++------------------------+
+| left     top     right |
+|    +------------+      |
+|    | contentRect|      |
+|    +------------+      |
+|        bottom          |
++------------------------+
+```
+
+`MulleLayoutInit` takes a bounding `rect` and `MulleEdgeInsets` (top, left,
+bottom, right). The insets define the padding between the frame and the
+content area.
+
+**The frame's top inset doubles as inter-row spacing.** When a new row is
+started, the gap above it is `max(frame.top, previous_row_bottom_margin)`.
+There is no separate row-spacing parameter; if you want flush rows with frame
+padding, set item bottom margins to 0 and frame top inset to your desired
+padding.
+
+
+### Adding items to a row
+
+`MulleLayoutAddToRow(p, size, margins)` places a rectangle of `size` into
+the current row, separated from the previous item (or from the frame edge)
+by its margins.
+
+Returns the placed `CGRect`, or `CGRectNull` if the item does not fit.
+
+
+### Margin merging
+
+Horizontal margins between adjacent items **merge**: the gap is
+`max(left_item.right, right_item.left)`, not the sum. This mirrors CSS
+margin collapsing.
+
+Vertical margins merge the same way: the row gap is
+`max(row_above.bottom, frame.top)`.
+
+**Example** — two items with left=10, right=10 margins in a row:
+```
+gap = max(10, 10) = 10   (not 20)
+```
+
+
+### Fit check asymmetry
+
+When checking whether an item fits in the row:
+
+- The **left margin** of the item participates in the fit check (it
+  determines where the item starts).
+- The **right margin** of the item is **not** checked against the frame
+  boundary. It only contributes to the gap before the *next* item.
+- The **bottom margin** of the item is **not** checked against the frame's
+  bottom inset either.
+
+This is intentional: the right margin affects spacing to the next neighbor,
+not whether this item fits. However, it means an item can be placed such
+that its right margin would extend past the frame — the next item simply
+won't fit.
+
+
+### Reverse layout (right-to-left)
+
+`MulleLayoutInitReverse` swaps left/right margins internally and mirrors
+every returned rect horizontally within the frame. The caller's code is
+identical to LTR — only the output coordinates change.
+
+
+### Content rect
+
+`MulleLayoutGetContentRect` returns the usable area inside the frame insets.
+In reverse mode it is mirrored to match where items actually land.
+
+
+### Row lifecycle
+
+```c
+MulleLayoutInit(&layout, frame, insets);
+
+for each item:
+    r = MulleLayoutAddToRow(&layout, size, margins);
+    if (CGRectIsNull(r))
+    {
+        MulleLayoutNewRow(&layout);
+        r = MulleLayoutAddToRow(&layout, size, margins);
+    }
+```
+
+
+## MulleGrid — Uniform grid layout
+
+`MulleGrid` lays out N equally-sized items in a rows×columns grid with
+uniform spacing.
+
+### Construction modes
+
+| `itemSize`         | `rows` | `columns` | Behavior                          |
+|--------------------|--------|-----------|-----------------------------------|
+| given (both > 0)   | 0      | 0         | compute rows & cols from canvas   |
+| given (width > 0)  | 0      | 0         | compute rows from height & canvas |
+| given (height > 0) | 0      | 0         | compute cols from width & canvas  |
+| zero               | given  | given     | compute itemSize from canvas      |
+| zero               | 0      | given     | compute rows & itemSize           |
+| zero               | given  | 0         | compute cols & itemSize           |
+| zero               | 0      | 0         | auto: exhaustive search           |
+
+In auto mode (both zero), the algorithm evaluates all feasible column counts
+and picks the one that maximizes `0.5 * utilization + 0.5 * squareness`,
+where utilization is the fraction of canvas area used and squareness is how
+close each item's aspect ratio is to 1:1.
+
+
+### Accessing grid cells
+
+```c
+MulleGridGetItemRect(&grid, index)     // rect for item at linear index
+MulleGridGetColumnX(&grid, col)        // x coordinate of column edge
+MulleGridGetRowY(&grid, row)           // y coordinate of row edge
+```
+
+Out-of-range column/row returns `NAN`.
+
+
+## CGRectSubdivide — Rect subtraction
+
+`CGRectSubdivide(rect, other, output[4])` computes `rect - other`: the
+remaining pieces of `rect` after removing the overlap with `other`.
+
+Returns:
+- **0** when `other` completely covers `rect` (nothing remains)
+- **1** when there is no overlap (`output[0]` = original `rect`)
+- **1–4** non-overlapping pieces otherwise
+
+
+## CGRectEdge — Direction-based edge enum
+
+**Not value-compatible with Apple's `CGRectEdge`.**
+
+| Name           | Value | Apple equivalent value |
+|----------------|-------|----------------------|
+| CGRectMinXEdge | 4     | 0                    |
+| CGRectMinYEdge | 1     | 1                    |
+| CGRectMaxXEdge | 8     | 2                    |
+| CGRectMaxYEdge | 2     | 3                    |
+
+Code ported from UIKit/AppKit that passes raw integer literals (e.g. `2` for
+`CGRectMaxXEdge`) will silently get the wrong edge. Always use the named
+constants.
+
+
+## CGContentMode — Placement and scaling
+
+`CGContentMode` is a bitmask, not an opaque enum:
+
+```
+Bits [3:0]  positioning (CADirection flags)
+  0x1=Up, 0x2=Down, 0x4=Left, 0x8=Right, 0xF=Center
+
+Bits [7:4]  scaling
+  0x10=FillH, 0x20=FillV, 0x30=ScaleToFill
+  0x40=AspectFill, 0x80=AspectFit, 0xC0=ScaleAspect
+```
+
+Modes can be combined: `CGContentModeAspectFit | CGContentModeTopLeft` scales
+to fit then anchors top-left instead of centering.
+
+
+## CGRectPartitionIntoRowsAndColumns
+
+Partitions a frame into a `rowSize × columnSize` grid of rects.
+
+**Naming note:** `rowSize` means "number of rows" and `columnSize` means
+"number of columns" (not "size of a row/column"). The output array must hold
+`rowSize * columnSize` elements.
+
+
+## Design decisions
+
+- **No allocations.** All state fits in stack structs.
+- **NULL-tolerant public API.** Every `MulleXxxFoo(p, ...)` wrapper checks
+  `p` before calling `_MulleXxxFoo`. The `_`-prefixed variants assume valid
+  pointers.
+- **−0.0 / memcmp equality.** `MulleEdgeInsets` avoids negative zero so
+  struct comparison with `memcmp` works correctly.
+- **Non-Apple `CGRectUnion` semantics.** The layout relies on
+  `CGRectUnion(zeroSizeRect, r)` preserving the zero-size rect's origin.
+  Apple's `CGRectUnion` discards empty rects. Do not substitute Apple's
+  implementation.
 
 
 
