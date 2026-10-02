@@ -3,11 +3,11 @@
  *   `mulle-sde reflect` and any edits will be lost.
  *   Suppress generation of this file with:
  *
- *      mulle-sde environment set MULLE_MATCH_TO_C_C_HEADERS_FILE DISABLE
+ *      mulle-sde environment --global set MULLE_MATCH_TO_C_C_HEADERS_FILE DISABLE
  *
  *   To not let mulle-match-to-c generate any header files:
  *
- *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
+ *      mulle-sde environment --global set MULLE_MATCH_TO_C_RUN DISABLE
  */
 #ifndef _mulle__layout__provide_h__
 #define _mulle__layout__provide_h__
@@ -16,10 +16,10 @@
 #include "MulleCornerInsets.h"
 #include "MulleEdgeInsets.h"
 #include "MulleGrid.h"
+#include "MulleLayout.h"
 #include "MulleLayoutContent.h"
 #include "MulleLayoutPartition.h"
 #include "MulleLayoutPlacement.h"
-#include "MulleLayout.h"
 
 
 #endif
