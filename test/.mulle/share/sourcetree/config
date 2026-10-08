@@ -1,1 +1,1 @@
-mulle-layout;${MULLE__LAYOUT_NODETYPE:-tar};;400CB1EF-6787-482C-B0E3-EA6B2D0142D4;${MULLE__LAYOUT_URL:-https://github.com/mulle-gfx/mulle-layout/archive/${MULLE_TAG}.tar.gz};${MULLE__LAYOUT_BRANCH};${MULLE__LAYOUT_TAG:-latest};;
+mulle-layout;${MULLE__LAYOUT_NODETYPE:-tar};;B6F40A0F-4FBE-4EF4-BDDC-E2F6CD802192;${MULLE__LAYOUT_URL:-https://github.com/nat/mulle-layout/archive/${MULLE_TAG}.tar.gz};${MULLE__LAYOUT_BRANCH};${MULLE__LAYOUT_TAG:-latest};;
